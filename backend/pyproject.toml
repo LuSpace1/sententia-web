@@ -1,0 +1,18 @@
+[project]
+name = "sententia-backend"
+version = "0.1.0"
+description = "Backend de Sententia - Asistente Legal IA con RAG"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "chromadb>=1.5.5",
+    "django>=5.2",
+    "django-cors-headers>=4.9.0",
+    "djangorestframework>=3.16.0",
+    "langchain-chroma>=1.1.0",
+    "langchain-community>=0.3.0",
+    "langchain-ollama>=0.3.0",
+    "pypdf>=5.0.0",
+    "python-decouple>=3.8",
+]
+
