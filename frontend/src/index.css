@@ -1,31 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@200..900&family=Inter:wght@300..800&display=swap');
 
 :root {
-  --bg-app: #030303;
-  --bg-sidebar: #060606;
-  --bg-card: #0d0d0d;
+  --bg-app: #030305;
+  --bg-sidebar: #060609;
+  --bg-card: rgba(15, 15, 20, 0.4);
   --bg-bubble-user: #ffffff;
-  --bg-bubble-ai: #111111;
-  --text-main: #ffffff;
-  --text-sub: #888888;
+  --bg-bubble-ai: rgba(25, 25, 30, 0.6);
+  --text-main: #f8f9fa;
+  --text-sub: #a1a1aa;
   --text-inv: #000000;
   --border: rgba(255, 255, 255, 0.08);
-  --accent: #ffffff;
-  --shadow: 0 10px 40px rgba(0, 0, 0, 0.95);
+  --accent: #e2e8f0;
+  --primary-glow: rgba(120, 119, 198, 0.15);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-[data-theme='light'] {
-  --bg-app: #fdf5e6;
-  --bg-sidebar: #f5ecd5;
-  --bg-card: #ffffff;
-  --bg-bubble-user: #3e2723;
-  --bg-bubble-ai: #ffffff;
-  --text-main: #2d1b18;
-  --text-sub: #6d4c41;
-  --text-inv: #ffffff;
-  --border: #d2b48c;
-  --accent: #5d4037;
-  --shadow: 0 10px 40px rgba(62, 39, 35, 0.1);
+/* Light mode variables deleted to keep pure dark UI */
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -34,258 +27,72 @@ body {
   color: var(--text-main);
   font-family: 'Inter', sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.text-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .mesh-gradient {
-  background-color: var(--bg-app);
-  position: relative;
+  background: linear-gradient(135deg, var(--bg-app) 0%, rgba(30, 30, 40, 0.5) 100%);
 }
 
-[data-theme='dark'] .mesh-gradient::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-image: radial-gradient(at 0% 0%, hsla(253, 16%, 5%, 1) 0, transparent 50%);
-  pointer-events: none;
+.text-success {
+  color: #22c55e;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-.ls-2 { letter-spacing: 0.1em; }
-.transition-300 { transition: all 0.3s ease; }
-
-.markdown-content p { margin-bottom: 1rem; line-height: 1.6; }
-.markdown-content strong { font-weight: 700; color: var(--accent); }
-
-/* Chat layout */
-.sidebar-lawyer {
-  width: 300px;
-  height: 100%;
-  background: var(--bg-sidebar);
-  border-right: 1px solid var(--border);
-  transition: transform 0.3s ease;
-  z-index: 30;
+.text-white {
+  color: #fff;
 }
 
-@media (max-width: 768px) {
-  .sidebar-lawyer { position: absolute; transform: translateX(-100%); }
-  .sidebar-lawyer.show { transform: translateX(0); }
-}
-
-.chat-header-lawyer {
-  height: 72px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-sidebar);
-}
-
-.btn-sidebar {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-sub);
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  text-decoration: none;
+.fw-medium {
   font-weight: 500;
-  transition: 0.2s;
 }
-.btn-sidebar:hover { background: var(--bg-bubble-ai); color: var(--text-main); }
 
-.btn-main-action {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--text-main);
-  color: var(--text-inv);
-  border: none;
-  padding: 12px 18px;
-  border-radius: 10px;
+.fw-bold {
   font-weight: 700;
-  transition: 0.2s;
 }
-.btn-main-action:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2); }
 
-.history-item-lawyer {
-  display: flex;
-  align-items: center;
-  padding: 10px 14px;
-  border-radius: 8px;
-  color: var(--text-sub);
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: 0.2s;
-}
-.history-item-lawyer.active { background: var(--bg-card); color: var(--text-main); border-color: var(--border); }
-
-.theme-switcher {
-  background: var(--bg-card);
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  padding: 4px;
-}
-.btn-theme {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 10px 14px;
-  border: none;
-  background: transparent;
-  color: var(--text-sub);
-  font-weight: 600;
-  font-size: 0.88rem;
-  border-radius: 8px;
-  transition: 0.2s;
-}
-.btn-theme:hover { color: var(--text-main); }
-
-.user-card {
-  display: flex;
-  align-items: center;
-  padding: 12px;
-  background: var(--bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--border);
-}
-.avatar-lawyer {
-  width: 38px;
-  height: 38px;
-  background: var(--accent);
-  color: var(--text-inv);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
+.fw-extrabold {
   font-weight: 800;
-  font-size: 0.9rem;
 }
 
-.btn-logout-lawyer {
-  background: transparent;
-  border: none;
-  color: var(--text-sub);
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 8px;
-  transition: 0.2s;
-}
-.btn-logout-lawyer:hover { color: #ff4444; }
-
-/* Messages */
-.message-container { display: flex; margin-bottom: 36px; }
-.message-container.user { flex-direction: row-reverse; }
-
-.avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.avatar.ai { background: var(--bg-card); border: 1px solid var(--border); color: var(--accent); margin-right: 16px; }
-.avatar.user { background: var(--text-main); color: var(--text-inv); margin-left: 16px; }
-
-.message-content {
-  max-width: 80%;
-  padding: 18px 20px;
-  border-radius: 14px;
-  position: relative;
-  background: var(--bg-bubble-ai);
-  border: 1px solid var(--border);
-  line-height: 1.65;
-}
-.message-container.user .message-content {
-  background: var(--bg-bubble-user);
-  color: var(--text-inv);
-  border: none;
-}
-
-.btn-copy-lawyer {
-  position: absolute;
-  right: 10px;
-  top: -30px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-sub);
-  padding: 5px;
-  border-radius: 6px;
-  opacity: 0;
-  transition: 0.2s;
-}
-.message-container:hover .btn-copy-lawyer { opacity: 1; top: -14px; }
-
-/* Input area */
-.input-box {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 6px 10px 6px 22px;
-  display: flex;
-  align-items: center;
-  transition: 0.2s;
-}
-.input-box:focus-within { border-color: rgba(255, 255, 255, 0.25); }
-
-.lawyer-textarea {
-  background: transparent;
-  border: none;
-  color: var(--text-main);
-  flex-grow: 1;
-  padding: 12px 0;
-  resize: none;
-  font-size: 1rem;
-  outline: none;
-  font-family: 'Inter', sans-serif;
-}
-.btn-send-lawyer {
-  background: transparent;
-  border: none;
-  color: var(--text-sub);
-  padding: 10px;
-  border-radius: 12px;
-  transition: 0.3s;
-}
-.btn-send-lawyer.active { color: var(--text-main); background: var(--border); }
-
-/* Animations */
-.animate-in { animation: slideIn 0.25s ease-out forwards; }
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Typography utilities */
-.x-small-text { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
-.ls-tighter { letter-spacing: -0.05em; }
-.text-accent { color: var(--accent); }
-.text-sub { color: var(--text-sub); }
-.scrollbar-minimal::-webkit-scrollbar { width: 3px; }
-.scrollbar-minimal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-/* Border utility */
-.border-top-lawyer { border-top: 1px solid var(--border); }
-
-/* Landing page extras */
-.btn-minimal {
-  background: #fff;
-  color: #000;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  transition: 0.2s;
-}
-.btn-minimal:hover { background: #e5e5e5; color: #000; }
-
-.card-minimal {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
+.hover-white:hover {
+  color: #fff;
 }
