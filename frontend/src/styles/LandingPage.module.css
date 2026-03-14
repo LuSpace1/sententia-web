@@ -1,0 +1,421 @@
+.mainContainer {
+  background-color: #000;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  position: relative;
+  min-height: 100vh;
+}
+
+/* Background Gradients & Glows */
+.ambientGlow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambientGlow::before,
+.ambientGlow::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  animation: pulseGlow 10s ease-in-out infinite alternate;
+}
+
+.ambientGlow::before {
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: radial-gradient(circle, #818cf8 0%, transparent 70%);
+}
+
+.ambientGlow::after {
+  bottom: 20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, #c084fc 0%, transparent 70%);
+  animation-delay: -5s;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.1; }
+  100% { transform: scale(1.1) translate(20px, 20px); opacity: 0.2; }
+}
+
+/* Glass Navbar */
+.glassNavbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5, 5, 5, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.brandLogo {
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Buttons */
+.btnGlass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btnGlass:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.btnPrimary {
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.btnPrimary:hover {
+  background: #f0f0f0;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 25px rgba(255, 255, 255, 0.2);
+}
+
+.btnPrimaryLg {
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+}
+
+/* Hero Section */
+.heroSection {
+  position: relative;
+  z-index: 10;
+  padding: 4rem 0 6rem 0;
+  display: flex;
+  align-items: center;
+  min-height: 85vh;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  color: #818cf8;
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.heroTitle {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(3rem, 6vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  margin-bottom: 1.5rem;
+}
+
+.gradientText {
+  background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradientTextAccent {
+  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.heroDesc {
+  font-size: 1.25rem;
+  color: #a1a1aa;
+  font-weight: 300;
+  line-height: 1.6;
+  max-width: 650px;
+  margin: 0 auto 3rem auto;
+}
+
+/* Social Proof */
+.socialProof {
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.01);
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.socialProofTitle {
+  color: #52525b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.techLogos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4rem;
+  flex-wrap: wrap;
+  opacity: 0.5;
+  filter: grayscale(100%);
+  transition: all 0.3s;
+}
+
+.techLogos:hover {
+  opacity: 0.8;
+}
+
+.techItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.5px;
+}
+
+/* Glass Cards & Bento Grid */
+.sectionBlock {
+  position: relative;
+  z-index: 10;
+  padding: 8rem 0;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 5rem;
+}
+
+.sectionTitle {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin-bottom: 1rem;
+}
+
+.sectionDesc {
+  color: #a1a1aa;
+  font-size: 1.15rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.glassCard {
+  background: rgba(25, 25, 30, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  height: 100%;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+}
+
+.glassCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.glassCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(30, 30, 40, 0.6);
+}
+
+.glassCard:hover::before {
+  opacity: 1;
+}
+
+.iconBox {
+  width: 60px;
+  height: 60px;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.glassCard:hover .iconBox {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: rgba(129, 140, 248, 0.3);
+  color: #818cf8;
+  transform: scale(1.05);
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.cardDesc {
+  color: #a1a1aa;
+  line-height: 1.7;
+  font-weight: 300;
+}
+
+/* Terminal Mockup */
+.terminalMockup {
+  background: #09090b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.terminalHeader {
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.terminalDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dotRed { background: #ef4444; }
+.dotYellow { background: #eab308; }
+.dotGreen { background: #22c55e; }
+
+.terminalBody {
+  padding: 2rem;
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* Steps */
+.stepItem {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.stepItem:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50px;
+  left: 24px;
+  bottom: -20px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stepNumber {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #fff;
+  z-index: 2;
+}
+
+/* CTA Section */
+.ctaSection {
+  background: radial-gradient(circle at center, rgba(30,30,40, 0.8) 0%, transparent 70%);
+  padding: 8rem 0;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  border-top: 1px solid rgba(255,255,255,0.02);
+}
+
+/* Footer */
+.glassFooter {
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 3rem 0;
+  position: relative;
+  z-index: 10;
+}
+
+.footerLinks a {
+  color: #a1a1aa;
+  transition: color 0.2s;
+}
+
+.footerLinks a:hover {
+  color: #fff;
+}
+
+.glassFeatureImg {
+  max-width: 100%;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.4s ease;
+}
+
+.glassFeatureImg:hover {
+  transform: translateY(-5px) scale(1.01);
+}
