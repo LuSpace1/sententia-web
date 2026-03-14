@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
 import { authService } from '../services/api';
-import '../index.css';
+import '../styles/auth.css';
 
 const Register = ({ onLogin }) => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
@@ -31,68 +31,75 @@ const Register = ({ onLogin }) => {
   };
 
   return (
-    <div className="vh-100 d-flex align-items-center justify-content-center" style={{ background: '#000' }}>
-      <div className="card border-dark p-5 rounded-4 shadow-2xl" style={{ width: '450px', background: '#080808' }}>
+    <div className="auth-container">
+      <div className="auth-card">
         <div className="mb-5">
-          <Link to="/" className="text-secondary text-decoration-none small d-flex align-items-center mb-4 hover-white">
-            <ChevronLeft size={16} className="me-1" /> Volver al inicio
+          <Link to="/" className="auth-back-link">
+            <ChevronLeft size={16} className="me-1" aria-hidden="true" /> Volver al inicio
           </Link>
-          <h2 className="display-6 fw-extrabold tracking-tighter mb-2">Registro.</h2>
-          <p className="text-secondary fw-light">Crea tu cuenta legal por $1.000/mes.</p>
+          <h2 className="auth-title">Registro.</h2>
+          <p className="auth-subtitle">Crea tu cuenta legal por $1.000/mes.</p>
         </div>
 
         {error && (
-          <div className="alert alert-danger p-3 rounded-3 mb-4 bg-transparent border-danger text-danger small">
+          <div className="auth-error" role="alert">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-input-group">
+            <label htmlFor="register-username" className="auth-label">Nombre de Usuario</label>
             <input
+              id="register-username"
               type="text"
               name="username"
-              className="form-control form-control-lg bg-black border-dark text-white rounded-3 shadow-none py-3"
+              className="auth-input"
               placeholder="Nombre de Usuario"
+              autoComplete="username"
               value={formData.username}
               onChange={handleChange}
               required
             />
           </div>
-          <div className="mb-4">
+          <div className="auth-input-group">
+            <label htmlFor="register-email" className="auth-label">Email (Opcional)</label>
             <input
+              id="register-email"
               type="email"
               name="email"
-              className="form-control form-control-lg bg-black border-dark text-white rounded-3 shadow-none py-3"
+              className="auth-input"
               placeholder="Email (Opcional)"
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
             />
           </div>
-          <div className="mb-5">
+          <div className="auth-input-group">
+            <label htmlFor="register-password" className="auth-label">Contraseña</label>
             <input
+              id="register-password"
               type="password"
               name="password"
-              className="form-control form-control-lg bg-black border-dark text-white rounded-3 shadow-none py-3"
-              placeholder="Contraseña (Mín. 8 caracteres)"
+              className="auth-input"
+              placeholder="Contraseña (Mín. 8 caracteres)…"
+              autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
               required
               minLength="8"
             />
           </div>
-          <button className="btn btn-minimal w-100 btn-lg py-3 fw-bold shadow-lg" type="submit" disabled={loading}>
-            {loading ? 'Creando cuenta...' : 'Registrarse y Empezar'}
+          <button className="auth-submit" type="submit" disabled={loading} aria-busy={loading}>
+            {loading ? 'Creando cuenta…' : 'Registrarse y Empezar'}
           </button>
         </form>
 
-        <div className="text-center mt-5">
-          <p className="text-secondary small">
-            ¿Ya tienes cuenta?{' '}
-            <Link to="/login" className="text-white text-decoration-none fw-bold border-bottom border-white ms-2">
-              Inicia Sesión
-            </Link>
-          </p>
+        <div className="auth-footer">
+          <span>¿Ya tienes cuenta? </span>
+          <Link to="/login" className="auth-footer-link">
+            Inicia Sesión
+          </Link>
         </div>
       </div>
     </div>

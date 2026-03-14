@@ -1,0 +1,873 @@
+/* src/styles/chat.css */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Paleta Base Liquid Dark */
+  --liquid-bg-1: #0f0c29;
+  --liquid-bg-2: #302b63;
+  --liquid-bg-3: #24243e;
+  
+  --glass-bg: rgba(20, 20, 25, 0.45);
+  --glass-bg-hover: rgba(35, 35, 45, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-light: rgba(255, 255, 255, 0.15);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  
+  /* Gradientes de Acento */
+  --accent-gradient: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+  --accent-color: #818cf8;
+  
+  /* Tipografía */
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  
+  /* Dimensiones */
+  --sidebar-width: 300px;
+  --header-height: 70px;
+  
+  /* Fuentes */
+  --font-main: 'Outfit', sans-serif;
+}
+
+/* Base global para el chat para asegurar que toma la nueva fuente */
+.chat-container * {
+  font-family: var(--font-main);
+}
+
+/* Efecto Dark Solid Background */
+.dark-bg {
+  background-color: #09090b; /* Muy oscuro, casi negro minimalista */
+  color: var(--text-primary);
+  position: relative;
+}
+
+/* Remplazar el mesh animado previo, manteniendo la clase por las dudas */
+.mesh-gradient {
+  background-color: #09090b;
+}
+
+/* Utilidades Glassmorphism */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Main container adjustments para layout con sidebar */
+.chat-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   SIDEBAR (Panel Lateral)
+   ========================================================================== */
+.chat-sidebar {
+  width: var(--sidebar-width);
+  min-width: var(--sidebar-width);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--glass-border);
+  background: rgba(20, 20, 20, 0.4); /* Fondo gris muy oscuro sutilmente transparente */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  position: relative;
+}
+
+.sidebar-collapsed .chat-sidebar {
+  margin-left: calc(var(--sidebar-width) * -1); /* Oculta a la izquierda en desktop */
+}
+
+/* Ocultar el scroll horizontal general y permitir hover states agradables */
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  overflow: hidden;
+}
+
+/* Nueva disposición del logo/inicio en el sidebar */
+.sidebar-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.brand-icon-wrapper {
+  background: var(--accent-gradient);
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(129, 140, 248, 0.3);
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.brand-title span {
+  font-weight: 300;
+  opacity: 0.7;
+}
+
+/* Botón Nuevo Chat Flotante/Glass */
+.btn-new-chat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border-light);
+  border-radius: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.btn-new-chat:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Listas del historial (Fijados / Recientes) */
+.history-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 -0.5rem;
+  padding: 0 0.5rem;
+  gap: 1.5rem;
+}
+
+.history-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.history-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding-left: 0.5rem;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Items del Historial */
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.8rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  position: relative;
+}
+
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  overflow: hidden;
+  font-size: 0.9rem;
+}
+
+.chat-icon {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.history-item.active .chat-icon {
+  color: var(--text-primary);
+}
+
+.item-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.edit-title-input {
+  background: rgba(255,255,255, 0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  width: 100%;
+  flex: 1;
+  outline: none;
+}
+
+.edit-title-input:focus {
+  border-color: var(--accent-color);
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary);
+}
+
+.history-item:hover .chat-icon {
+  color: var(--text-secondary);
+}
+
+.history-item.active {
+  background: rgba(255, 255, 255, 0.08); /* Fondo solid gris sutil */
+  border-color: var(--glass-border);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* Botón de opciones dentro del ítem (Puntos/Opciones) */
+.item-actions {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.history-item:hover .item-actions,
+.history-item.active .item-actions {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.25rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fb7185;
+}
+
+.action-btn.pin.active {
+  color: var(--accent-color);
+  opacity: 1;
+}
+
+/* Footer Sidebar (Usuario / Ajustes) */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.user-profile-glass {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.user-profile-glass:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.avatar-liquid {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 2px 10px rgba(129, 140, 248, 0.3);
+  position: relative;
+}
+
+/* Efecto sutil "anillo" alrededor del avatar */
+.avatar-liquid::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info-text {
+  flex: 1;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: 0.75rem;
+  color: var(--accent-color);
+}
+
+.settings-btn {
+  padding: 0.4rem;
+  border-radius: 0.4rem;
+  color: var(--text-secondary);
+}
+.settings-btn:hover {
+  background: rgba(255,255,255, 0.1);
+  color: var(--text-primary);
+}
+
+.logout-btn-glass {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #fb7185;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logout-btn-glass:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+
+/* ==========================================================================
+   ÁREA PRINCIPAL DEL CHAT (Main)
+   ========================================================================== */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  z-index: 2; /* Sobre el fondo mesh pero bajo overlays si los hay */
+}
+
+/* Header Main (Transparente flotante) */
+.glass-header {
+  height: var(--header-height);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem;
+  background: transparent;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  pointer-events: none; /* Que los clics pasen a través excepto los botones */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+
+/* Contenedores interiores del header que reciban clics */
+.desktop-toggle-sidebar {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.desktop-toggle-sidebar:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.hidden-sidebar-branding {
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.header-actions, .mobile-menu-btn {
+  pointer-events: auto;
+}
+
+.mobile-menu-btn {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+.mobile-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.glass-header-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.glass-header-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* Zona de Mensajes */
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: calc(var(--header-height) + 1rem) 2rem 2rem 2rem; /* Espacio superior compensado por abs header */
+  scroll-behavior: smooth;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.messages-container {
+  width: 100%;
+  max-width: 850px;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Mensajes Animación */
+@keyframes messageSlideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  animation: messageSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  width: 100%;
+}
+
+/* Mensaje del Sistema / AI */
+.message-wrapper.ai {
+  justify-content: flex-start;
+}
+
+/* Mensaje del Usuario */
+.message-wrapper.user {
+  flex-direction: row-reverse;
+}
+
+/* Avatar de los mensajes */
+.msg-avatar-container {
+  flex-shrink: 0;
+  margin-top: 0.5rem;
+}
+
+.msg-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.msg-avatar.ai-icon {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border-light);
+  color: var(--accent-color);
+  backdrop-filter: blur(10px);
+}
+
+.msg-avatar.user-icon {
+  background: var(--text-primary);
+  color: var(--liquid-bg-1);
+}
+
+/* Cuerpo de la Burbuja del Mensaje */
+.glass-bubble {
+  padding: 1.25rem 1.5rem;
+  border-radius: 1.25rem;
+  position: relative;
+  max-width: 85%;
+  line-height: 1.6;
+}
+
+/* Variante AI */
+.glass-bubble.ai-bubble {
+  background: rgba(20, 20, 25, 0.5);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top-left-radius: 0.25rem; /* Punta tipo flecha sutil */
+  color: var(--text-primary);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+/* Variante Usuario */
+.glass-bubble.user-bubble {
+  background: rgba(255, 255, 255, 0.08); /* Más transparente */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-top-right-radius: 0.25rem;
+  color: var(--text-primary);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+}
+
+/* Botón flotante copiar en AI */
+.copy-pill {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+  padding: 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+.glass-bubble.ai-bubble:hover .copy-pill {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.copy-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.copy-pill.success {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+  opacity: 1;
+}
+
+/* ESTILOS DE MARKDOWN DENTRO DEL CHAT */
+.md-pro {
+  font-size: 0.95rem;
+}
+.md-pro p { margin-bottom: 1rem; }
+.md-pro p:last-child { margin-bottom: 0; }
+.md-pro h1, .md-pro h2, .md-pro h3 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: rgba(255, 255, 255, 0.98);
+}
+.md-pro ul, .md-pro ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+.md-pro li { margin-bottom: 0.5rem; }
+.md-pro strong { font-weight: 600; color: #fff; }
+
+.md-pro pre {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.md-pro code {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.3rem;
+  font-size: 0.85em;
+}
+
+.md-pro pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.md-pro blockquote {
+  border-left: 3px solid var(--accent-color);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  margin: 1rem 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Indicador de "Escribiendo" */
+.typing-indicator {
+  display: flex;
+  gap: 0.3rem;
+  padding: 0.5rem 0;
+}
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--text-secondary);
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+.typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.typing-dot:nth-child(2) { animation-delay: -0.16s; }
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+
+/* ==========================================================================
+   CAJA DE TEXTO FLOAT (Input Footer)
+   ========================================================================== */
+.input-area-glass {
+  padding: 0 1rem 1rem 1rem; /* Reducido drásticamente bottom padding para asentar el input  */
+  background: transparent; /* Quitamos el gradient artificial elevado para más minimalismo */
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.input-pill-container {
+  width: 100%;
+  max-width: 850px;
+  background: rgba(30, 30, 35, 0.7); /* Background solido semioscuro en lugar del glass profundo*/
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem; /* Algo menos pastilla exagerada */
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.input-pill-container:focus-within {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(40, 40, 45, 0.8);
+}
+
+.chat-input-transparent {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  resize: none;
+  padding: 0.75rem 0;
+  max-height: 150px;
+  min-height: 24px;
+  outline: none;
+  line-height: 1.5;
+}
+
+.chat-input-transparent::placeholder {
+  color: var(--text-muted);
+}
+
+.send-btn-liquid {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--text-muted);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 0.75rem;
+}
+
+.send-btn-liquid.can-send {
+  background: var(--text-primary);
+  color: var(--liquid-bg-1);
+}
+
+.send-btn-liquid.can-send:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+.send-btn-liquid:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.input-footer-text {
+  margin-top: 0.75rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 860px) {
+  /* Ocultar el panel y mostrar overlay/botón de menú */
+  .chat-sidebar {
+    position: absolute;
+    left: 0;
+    transform: translateX(-100%); /* Oculto por defecto en móvil */
+    transition: transform 0.3s ease;
+    z-index: 200;
+  }
+  
+  .chat-sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.8);
+  }
+
+  .desktop-toggle-sidebar {
+    display: none; /* Hide toggle button in mobile */
+  }
+  
+  .mobile-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 150;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  
+  .mobile-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .glass-header {
+    padding: 0 1rem;
+  }
+
+  .messages-area, .input-area-glass {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .message-wrapper.user, 
+  .message-wrapper.ai {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+  
+  .message-wrapper.user {
+    align-items: flex-end;
+  }
+  
+  .glass-bubble {
+    max-width: 95%;
+  }
+
+  .msg-avatar-container {
+    margin-top: 0;
+    margin-left: 0.5rem; /* Separación visual en modo móvil */
+  }
+  
+  .message-wrapper.user .msg-avatar-container {
+    margin-right: 0.5rem;
+  }
+}
+
+/* Evitar selecciones extrañas en elementos UI */
+.sidebar-content, .header-left, .header-actions {
+  user-select: none;
+}
