@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+from django.core.files.storage import FileSystemStorage
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -74,4 +77,47 @@ class ChatView(APIView):
             return Response(
                 {"error": str(exc)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+
+class TrainView(APIView):
+    """Endpoint para cargar e indexar nuevos documentos legales (.pdf, .txt, .md)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if "file" not in request.FILES:
+            return Response(
+                {"error": "No se proporcionó ningún archivo"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        uploaded_file = request.FILES["file"]
+        filename = uploaded_file.name
+
+        # Validar extensión
+        if not filename.lower().endswith((".pdf", ".txt", ".md")):
+            return Response(
+                {"error": "Formato no soportado. Usa .pdf, .txt o .md"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Ruta de destino: carpeta 'data' en la raíz del proyecto
+        # Subimos 3 niveles desde views.py: core -> backend -> root
+        data_dir = Path(__file__).resolve().parent.parent.parent / "data"
+        os.makedirs(data_dir, exist_ok=True)
+
+        fs = FileSystemStorage(location=str(data_dir))
+        saved_filename = fs.save(filename, uploaded_file)
+        file_path = str(data_dir / saved_filename)
+
+        try:
+            result = _rag_system.ingest_file(file_path)
+            return Response({"message": result})
+        except Exception as exc:
+            # Si falla la ingesta, intentamos limpiar el archivo para no dejar basura
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return Response(
+                {"error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
