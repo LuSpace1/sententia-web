@@ -11,7 +11,8 @@ El objetivo principal de este proyecto es demostrar la viabilidad y el poder de 
 ### Aspectos Técnicos Destacados
 *   **Total Privacidad**: Al utilizar modelos locales (vía Ollama), las consultas de los usuarios -que a menudo contienen información sensible u confidencial- nunca salen de su dispositivo ni se envían a servidores de terceros.
 *   **Cero Costo Operativo de Suscripción**: Ideal para personas y organizaciones con bajo presupuesto, sin la necesidad de pagar altos costos por token o cuotas mensuales habituales.
-*   **Archivos Sugeridos (Ampliación de Conocimiento)**: Para maximizar la utilidad del RAG, se recomienda indexar documentos como: *Código del Trabajo, Ley de Protección al Consumidor (Ley 19.496), Ley de Copropiedad Inmobiliaria y el Código Civil.*
+*   **Archivos Sugeridos (Ampliación de Conocimiento)**: Para maximizar la utilidad del RAG, se recomienda indexar documentos legales dependiendo del área de interés del usuario que el usuario quiera consultar: 
+*  **Consideraciones**: Uno de los principales propositos de este proyecto es poder utilizar langchain y sus herramientas para poder crear un sistema de RAG robusto y estable, sin embargo una de las limitaciones que tiene este sistema es el uso de AI local que esta directamente ligada a la capacidad de computo de tu equipo personal. Los modelos que se sugiere instalar desde ollama son por motivos de compatibilidad con la arquitectura del proyecto pero no garantiza que vayan a correr en tu equipo, se recomienda ampliamente verificar los requisitos de cada modelo.
 
 ## Por qué estos modelos:
 
@@ -59,7 +60,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-> `uv sync` crea automáticamente el entorno virtual `.venv` con Python 3.13 e instala todas las dependencias.
+> `uv sync` utiliza el archivo `.python-version` para crear automáticamente el entorno virtual `.venv` con Python 3.12 e instala todas las dependencias. Si no tienes esa versión instalada, `uv` la descargará automáticamente.
 
 ### 3. Frontend (React + Vite)
 
