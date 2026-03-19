@@ -795,6 +795,170 @@
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
+
+/* ==========================================================================
+   MODAL DE AJUSTES / ENTRENAMIENTO
+   ========================================================================== */
+.settings-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.settings-modal {
+  background: #18181b;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 1.5rem;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  overflow: hidden;
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.settings-content {
+  padding: 2rem;
+}
+
+.train-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.train-info {
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.file-upload-area {
+  border: 2px dashed var(--glass-border);
+  border-radius: 1rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.file-upload-area:hover {
+  border-color: var(--accent-color);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.file-upload-area.has-file {
+  border-style: solid;
+  border-color: var(--accent-color);
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.hidden-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-name {
+  font-weight: 500;
+  color: var(--accent-color);
+  word-break: break-all;
+  font-size: 0.9rem;
+}
+
+.btn-train-action {
+  background: var(--text-primary);
+  color: var(--liquid-bg-1);
+  border: none;
+  padding: 0.85rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.btn-train-action:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+}
+
+.btn-train-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.train-status {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.train-status.success { 
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399; 
+}
+.train-status.error { 
+  background: rgba(251, 113, 133, 0.1);
+  color: #fb7185; 
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes modalSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
 @media (max-width: 860px) {
   /* Ocultar el panel y mostrar overlay/botón de menú */
   .chat-sidebar {

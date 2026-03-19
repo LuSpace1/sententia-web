@@ -23,4 +23,11 @@ export const authService = {
 
 export const chatService = {
   sendMessage: (question) => apiClient.post('/api/chat/', { question }),
+  train: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/api/train/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
