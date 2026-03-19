@@ -79,16 +79,3 @@ npm run dev
 
 > Para indexar nuevos documentos (PDF o TXT) usa `LegalRAG.ingest_file()` desde la shell de Django (`python manage.py shell`).
 
-## Estructura del proyecto
-
-```
-sententia/
-├── backend/          # Django + DRF + LangChain
-│   ├── config/       # Settings, URLs, WSGI/ASGI
-│   └── core/         # App principal: views, serializers, RAG
-├── data/             # Documentos legales y base vectorial (ChromaDB)
-└── frontend/         # React + Vite
-    └── src/
-        ├── components/
-        └── services/
-```
