@@ -401,11 +401,7 @@ Hola, soy tu asistente legal inteligente basado en RAG. ¿En qué te puedo ayuda
                   </ReactMarkdown>
                 </div>
 
-                {msg.role === 'user' && (
-                  <div className="msg-avatar-container">
-                    <div className="msg-avatar user-icon"><CircleUserRound size={20} /></div>
-                  </div>
-                )}
+
               </div>
             ))}
 

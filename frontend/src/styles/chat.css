@@ -16,6 +16,7 @@
   /* Gradientes de Acento */
   --accent-gradient: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
   --accent-color: #818cf8;
+  --ring: #818cf8;
   
   /* Tipografía */
   --text-primary: rgba(255, 255, 255, 0.95);
@@ -538,7 +539,7 @@
 
 /* Mensaje del Usuario */
 .message-wrapper.user {
-  flex-direction: row-reverse;
+  justify-content: flex-end;
 }
 
 /* Avatar de los mensajes */
@@ -591,12 +592,14 @@
 
 /* Variante Usuario */
 .glass-bubble.user-bubble {
-  background: rgba(255, 255, 255, 0.08); /* Más transparente */
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.03); /* Negro más claro que el fondo #09090b */
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-top-right-radius: 0.25rem;
-  color: var(--text-primary);
+  color: #fff;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
+  padding: 0.8rem 1.25rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Botón flotante copiar en AI */
