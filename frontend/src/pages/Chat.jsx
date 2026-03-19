@@ -5,7 +5,8 @@ import remarkGfm from 'remark-gfm';
 import { 
   SendHorizontal, Sparkles, LogOut, MessageSquareText, Bot, CircleUserRound, 
   Menu, MessageSquarePlus, Trash2, Home, 
-  Copy, Check, Info, Sun, Moon, Coffee, Settings, MoreVertical, Pin, PinOff, EyeOff, Edit3, PanelLeftClose, PanelLeftOpen
+  Copy, Check, Info, Sun, Moon, Coffee, Settings, MoreVertical, Pin, PinOff, EyeOff, Edit3, PanelLeftClose, PanelLeftOpen,
+  X, UploadCloud
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import '../styles/chat.css';
@@ -24,12 +25,8 @@ const Chat = ({ user, onLogout }) => {
       { 
         id: 'welcome-' + generateId(),
         role: 'system',
-        content: `### ✨ Sententia AI
-Hola, soy tu asistente legal inteligente basado en RAG. ¿En qué te puedo ayudar hoy?
-
-*Ejemplos de consultas:*
-- *"¿Cuáles son los requisitos para constituir una SPA?"*
-- *"¿Me puedes explicar qué es el recurso de protección?"*` 
+        content: `### Sententia AI
+¿En qué te puedo ayudar hoy?`
       }
     ]
   });
@@ -46,6 +43,11 @@ Hola, soy tu asistente legal inteligente basado en RAG. ¿En qué te puedo ayuda
   const [editingChatId, setEditingChatId] = useState(null);
   const [editTitleBuffer, setEditTitleBuffer] = useState('');
   
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [trainingFile, setTrainingFile] = useState(null);
+  const [isTraining, setIsTraining] = useState(false);
+  const [trainingStatus, setTrainingStatus] = useState(null); // { type: 'success' | 'error', message: string }
+
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -208,6 +210,34 @@ Hola, soy tu asistente legal inteligente basado en RAG. ¿En qué te puedo ayuda
     }
   };
 
+  const handleTrainFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setTrainingFile(file);
+      setTrainingStatus(null);
+    }
+  };
+
+  const handleTrainSubmit = async () => {
+    if (!trainingFile) return;
+
+    setIsTraining(true);
+    setTrainingStatus(null);
+
+    try {
+      const response = await chatService.train(trainingFile);
+      setTrainingStatus({ type: 'success', message: response.data.message });
+      setTrainingFile(null);
+    } catch (err) {
+      setTrainingStatus({ 
+        type: 'error', 
+        message: err.response?.data?.error || 'Error al procesar el documento legal.' 
+      });
+    } finally {
+      setIsTraining(false);
+    }
+  };
+
   // Filstrado de variables para render
   const visibleChats = chats.filter(c => !c.isHidden);
   const pinnedChats = visibleChats.filter(c => c.isPinned).sort((a,b) => b.updatedAt - a.updatedAt);
@@ -337,7 +367,11 @@ Hola, soy tu asistente legal inteligente basado en RAG. ¿En qué te puedo ayuda
                 <p className="user-name">{user.username}</p>
                 <p className="user-role">{user.isDemo ? 'Sesión Demo' : 'Socio Activo'}</p>
               </div>
-              <button className="action-btn settings-btn" title="Configuración">
+              <button 
+                className="action-btn settings-btn" 
+                title="Configuración"
+                onClick={() => setIsSettingsOpen(true)}
+              >
                  <Settings size={18} />
               </button>
             </div>
@@ -453,6 +487,75 @@ Hola, soy tu asistente legal inteligente basado en RAG. ¿En qué te puedo ayuda
         </footer>
 
       </main>
+
+      {/* --- MODAL DE CONFIGURACIÓN / ENTRENAMIENTO --- */}
+      {isSettingsOpen && (
+        <div className="settings-overlay" onClick={() => !isTraining && setIsSettingsOpen(false)}>
+          <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="settings-header">
+              <h2><Settings size={20} /> Configuración del Sistema</h2>
+              <button 
+                className="close-btn" 
+                onClick={() => setIsSettingsOpen(false)}
+                disabled={isTraining}
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="settings-content">
+              <div className="train-section">
+                <h3>⚖️ Entrenar Sententia</h3>
+                <p className="train-info">
+                  Sube documentos legales para alimentar la base de conocimiento del asistente. 
+                  Soportamos archivos <strong>PDF, TXT y MD</strong>.
+                </p>
+
+                <div className={`file-upload-area ${trainingFile ? 'has-file' : ''}`}>
+                  <input 
+                    type="file" 
+                    className="hidden-file-input" 
+                    accept=".pdf,.txt,.md"
+                    onChange={handleTrainFileChange}
+                    disabled={isTraining}
+                  />
+                  <UploadCloud size={40} strokeWidth={1.5} color={trainingFile ? 'var(--accent-color)' : 'var(--text-muted)'} />
+                  {trainingFile ? (
+                    <span className="file-name">{trainingFile.name}</span>
+                  ) : (
+                    <div className="upload-placeholder">
+                      <p>Haga clic para seleccionar archivo</p>
+                      <small>PDF, TXT o MD</small>
+                    </div>
+                  )}
+                </div>
+
+                <button 
+                  className="btn-train-action"
+                  onClick={handleTrainSubmit}
+                  disabled={!trainingFile || isTraining}
+                >
+                  {isTraining ? (
+                    <div className="typing-indicator" style={{ padding: 0 }}>
+                      <span className="typing-dot" style={{ backgroundColor: 'var(--liquid-bg-1)' }}></span>
+                      <span className="typing-dot" style={{ backgroundColor: 'var(--liquid-bg-1)' }}></span>
+                      <span className="typing-dot" style={{ backgroundColor: 'var(--liquid-bg-1)' }}></span>
+                    </div>
+                  ) : (
+                    <>Procesar Documento Legales</>
+                  )}
+                </button>
+
+                {trainingStatus && (
+                  <div className={`train-status ${trainingStatus.type}`}>
+                    {trainingStatus.message}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
