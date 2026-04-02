@@ -1,0 +1,13 @@
+[project]
+name = "sententia-web"
+version = "0.1.0"
+description = "Monorepo de Sententia - Asistente Legal"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["backend"]
+
+[tool.uv]
+package = false
