@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from core.views import RegisterView, LoginView, DemoLoginView, ChatView, TrainView
+from core.views import RegisterView, LoginView, DemoLoginView, ChatView, TrainView, PullModelView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('api/demo-login/', DemoLoginView.as_view(), name='demo-login'),
     path('api/chat/', ChatView.as_view(), name='chat'),
     path('api/train/', TrainView.as_view(), name='train'),
+    path('api/models/pull/', PullModelView.as_view(), name='pull-model'),
 ]

@@ -1,16 +1,19 @@
 import os
+import json
+import urllib.request
 from pathlib import Path
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.hashers import make_password
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.http import StreamingHttpResponse
 from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
 
 from .serializers import UserSerializer
-from .rag_logic import LegalRAG
+from .rag_logic import LegalRAG, ModelDependencyError
 
 # Instancia compartida del sistema RAG (se inicializa una sola vez)
 _rag_system = LegalRAG()
@@ -99,6 +102,21 @@ class ChatView(APIView):
         try:
             answer = _rag_system.query(question)
             return Response({"answer": answer})
+        except ModelDependencyError as exc:
+            return Response(
+                {
+                    "error": str(exc),
+                    "code": "ollama_model_missing",
+                    "model": exc.model_name,
+                    "purpose": exc.purpose,
+                    "message": (
+                        f'Falta el modelo "{exc.model_name}" en Ollama. '
+                        f'Se usa para {exc.purpose}. '
+                        "Si aceptas descargarlo, el sistema podrá indexar el corpus local y responder con contexto legal."
+                    ),
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
         except Exception as exc:
             return Response(
                 {"error": str(exc)},
@@ -147,3 +165,47 @@ class TrainView(APIView):
             return Response(
                 {"error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class PullModelView(APIView):
+    """Descarga un modelo de Ollama solo cuando el usuario lo autoriza."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        model_name = (request.data.get("model") or "").strip()
+        if not model_name:
+            return Response(
+                {"error": "Debes indicar el nombre del modelo"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        payload = json.dumps({"model": model_name, "stream": True}).encode("utf-8")
+        req = urllib.request.Request(
+            f"{_rag_system._ollama_url}/api/pull",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+
+        def event_stream():
+            try:
+                with urllib.request.urlopen(req, timeout=600) as response:
+                    for raw_line in response:
+                        if not raw_line.strip():
+                            continue
+
+                        decoded_line = raw_line.decode("utf-8").strip()
+                        yield decoded_line + "\n"
+            except Exception as exc:
+                yield json.dumps(
+                    {
+                        "status": "error",
+                        "error": f"No se pudo descargar el modelo: {exc}",
+                    }
+                ) + "\n"
+
+        return StreamingHttpResponse(
+            event_stream(),
+            content_type="application/x-ndjson",
+        )
