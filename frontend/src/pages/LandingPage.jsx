@@ -45,8 +45,10 @@ const AUDIENCES = [
 const LandingPage = ({ user, onLogout, onDemo }) => {
   const navigate = useNavigate();
 
-  const handleDemoClick = () => {
-    if (onDemo) onDemo();
+  const handleDemoClick = async () => {
+    if (onDemo) {
+      await onDemo();
+    }
     navigate('/chat');
   };
 

@@ -13,11 +13,11 @@ function App() {
     setUser(userData)
   }
 
-  const handleDemo = () => {
+  const handleDemo = async () => {
+    const { data } = await authService.demoLogin()
     const demoData = {
-      username: 'Invitado',
-      token: '1aa655afe79c414476a07608680446bec24976ad',
-      isDemo: true
+      ...data,
+      username: data.username || 'Invitado',
     }
     localStorage.setItem('user', JSON.stringify(demoData))
     setUser(demoData)

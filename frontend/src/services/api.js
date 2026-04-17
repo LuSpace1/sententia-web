@@ -19,6 +19,7 @@ apiClient.interceptors.request.use((config) => {
 export const authService = {
   login: (credentials) => apiClient.post('/api/login/', credentials),
   register: (userData) => apiClient.post('/api/register/', userData),
+  demoLogin: () => apiClient.post('/api/demo-login/'),
 };
 
 export const chatService = {

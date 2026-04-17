@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from django.core.files.storage import FileSystemStorage
+from django.contrib.auth.hashers import make_password
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -55,6 +56,31 @@ class LoginView(APIView):
 
         token, _ = Token.objects.get_or_create(user=user)
         return Response({"token": token.key, "username": user.username})
+
+
+class DemoLoginView(APIView):
+    """Endpoint para entrar al modo demo sin depender de un token fijo en el frontend."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        user, _ = User.objects.get_or_create(
+            username="demo",
+            defaults={"email": "", "is_active": True},
+        )
+
+        if not user.password or user.password == "!":
+            user.password = make_password(None)
+            user.save(update_fields=["password"])
+
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response(
+            {
+                "token": token.key,
+                "username": user.username,
+                "isDemo": True,
+            }
+        )
 
 
 class ChatView(APIView):
