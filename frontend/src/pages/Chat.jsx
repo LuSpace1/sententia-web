@@ -192,10 +192,14 @@ const Chat = ({ user, onLogout }) => {
         return c;
       }));
     } catch (err) {
+      const statusCode = err?.response?.status;
+      const errorContent = statusCode === 401 || statusCode === 403
+        ? '### 🔐 Sesión no autorizada\nNo se pudo validar tu sesión. Vuelve a iniciar sesión o activa el modo demo desde el inicio.'
+        : '### ⚠️ Falla Sistémica\nNo fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos.';
       const errorMessage = { 
         id: generateId(),
         role: 'assistant', 
-        content: '### ⚠️ Falla Sistémica\nNo fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos.' 
+        content: errorContent 
       };
       setChats(prev => prev.map(c => {
         if (c.id === activeChatId) {
