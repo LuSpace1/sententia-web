@@ -273,7 +273,7 @@ const LandingPage = ({ user, onLogout, onDemo }) => {
           <p className="text-secondary small mb-0">© 2026 Sententia. Inteligencia Artificial Aplicada al Derecho.</p>
           <div className={`d-flex gap-4 mt-3 mt-md-0 ${styles.footerLinks}`}>
             <a href="#" className="small text-decoration-none">Políticas</a>
-            <a href="#" className="small text-decoration-none">GitHub</a>
+            <a href="https://github.com/LuSpace1/sententia-web" className="small text-decoration-none">GitHub</a>
           </div>
         </div>
       </footer>
