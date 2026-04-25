@@ -37,6 +37,8 @@ const Chat = ({ user, onLogout }) => {
   // ESTADOS DE UI Y ENTRADA
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isModelDownloading, setIsModelDownloading] = useState(false);
+  const [downloadState, setDownloadState] = useState(null); // { modelName, purpose, status, progress, indeterminate }
   const [copiedId, setCopiedId] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true); // En desktop inicia abierto
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -50,6 +52,7 @@ const Chat = ({ user, onLogout }) => {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const downloadAbortRef = useRef(null);
 
   // Referencia al chat activo actual
   const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
@@ -158,6 +161,115 @@ const Chat = ({ user, onLogout }) => {
     }
   };
 
+  const handleModelDownload = async (modelName, purpose) => {
+    if (!modelName || isModelDownloading) return;
+
+    const abortController = new AbortController();
+    downloadAbortRef.current = abortController;
+    setIsModelDownloading(true);
+    setDownloadState({
+      modelName,
+      purpose,
+      status: 'Conectando con Ollama...',
+      progress: 0,
+      indeterminate: true,
+    });
+    try {
+      const finalEvent = await chatService.pullModel(modelName, {
+        signal: abortController.signal,
+        onProgress: (event) => {
+          const completed = Number(event.completed);
+          const total = Number(event.total);
+          const hasProgress = Number.isFinite(completed) && Number.isFinite(total) && total > 0;
+
+          setDownloadState((current) => ({
+            modelName,
+            purpose,
+            status: event.status || current?.status || 'Descargando...',
+            progress: hasProgress ? Math.max(0, Math.min(100, Math.round((completed / total) * 100))) : current?.progress ?? 0,
+            indeterminate: !hasProgress,
+          }));
+        },
+      });
+
+      if (finalEvent?.status !== 'success') {
+        throw new Error('Ollama no confirmó la descarga del modelo.');
+      }
+
+      const successMessage = {
+        id: generateId(),
+        role: 'assistant',
+        content: `### Modelo instalado
+El modelo **${modelName}** ya quedó disponible.
+
+Se usa para ${purpose || 'habilitar esta parte del sistema'}.
+
+Haz tu consulta nuevamente y el RAG podrá continuar.`
+      };
+
+      setChats(prev => prev.map(c => {
+        if (c.id === activeChatId) {
+          return { ...c, messages: [...c.messages, successMessage], updatedAt: Date.now() };
+        }
+        return c;
+      }));
+    } catch (err) {
+      if (err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') {
+        const cancelMessage = {
+          id: generateId(),
+          role: 'assistant',
+          content: `### Descarga cancelada\nNo se descargó **${modelName}**. Puedes volver a intentarlo cuando quieras.`
+        };
+
+        setChats(prev => prev.map(c => {
+          if (c.id === activeChatId) {
+            return { ...c, messages: [...c.messages, cancelMessage], updatedAt: Date.now() };
+          }
+          return c;
+        }));
+        return;
+      }
+
+      const downloadError = {
+        id: generateId(),
+        role: 'assistant',
+        content: `### No se pudo descargar el modelo
+${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
+      };
+
+      setChats(prev => prev.map(c => {
+        if (c.id === activeChatId) {
+          return { ...c, messages: [...c.messages, downloadError], updatedAt: Date.now() };
+        }
+        return c;
+      }));
+    } finally {
+      downloadAbortRef.current = null;
+      setIsModelDownloading(false);
+      setDownloadState(null);
+      if (window.innerWidth > 860) inputRef.current?.focus();
+    }
+  };
+
+  const handleCancelModelDownload = () => {
+    downloadAbortRef.current?.abort();
+  };
+
+  const handleSkipModelDownload = (modelName) => {
+    const skipMessage = {
+      id: generateId(),
+      role: 'assistant',
+      content: `### Entendido\nNo descargaré **${modelName}** por ahora.\n\nCuando quieras, puedes volver a intentar la consulta o instalar el modelo desde este mismo chat.`,
+    };
+
+    setChats(prev => prev.map(c => {
+      if (c.id === activeChatId) {
+        return { ...c, messages: [...c.messages, skipMessage], updatedAt: Date.now() };
+      }
+      return c;
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim() || loading) return;
@@ -192,10 +304,21 @@ const Chat = ({ user, onLogout }) => {
         return c;
       }));
     } catch (err) {
+        const statusCode = err?.response?.status;
+        const errorCode = err?.response?.data?.code;
+        const modelName = err?.response?.data?.model;
+        const purpose = err?.response?.data?.purpose;
+        const errorContent = errorCode === 'ollama_model_missing'
+          ? `### Falta un modelo local\nEl modelo **${modelName}** no está instalado.\n\nSe usa para ${purpose}.\n\n¿Quieres que lo descargue ahora?`
+          : statusCode === 401 || statusCode === 403
+            ? '### Sesión no autorizada\nNo se pudo validar tu sesión. Vuelve a iniciar sesión o activa el modo demo desde el inicio.'
+            : '### Falla Sistémica\nNo fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos.';
+
       const errorMessage = { 
         id: generateId(),
         role: 'assistant', 
-        content: '### ⚠️ Falla Sistémica\nNo fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos.' 
+          content: errorContent,
+          modelPrompt: errorCode === 'ollama_model_missing' ? { model: modelName, purpose } : null
       };
       setChats(prev => prev.map(c => {
         if (c.id === activeChatId) {
@@ -433,6 +556,26 @@ const Chat = ({ user, onLogout }) => {
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.content}
                   </ReactMarkdown>
+                  {msg.modelPrompt && (
+                    <div className="model-prompt-actions">
+                      <button
+                        type="button"
+                        className="model-action-btn primary"
+                        onClick={() => handleModelDownload(msg.modelPrompt.model, msg.modelPrompt.purpose)}
+                        disabled={loading || isModelDownloading}
+                      >
+                        Sí, descargar modelo
+                      </button>
+                      <button
+                        type="button"
+                        className="model-action-btn secondary"
+                        onClick={() => handleSkipModelDownload(msg.modelPrompt.model)}
+                        disabled={loading || isModelDownloading}
+                      >
+                        No ahora
+                      </button>
+                    </div>
+                  )}
                 </div>
 
 
@@ -451,6 +594,36 @@ const Chat = ({ user, onLogout }) => {
                     <span className="typing-dot"></span>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {isModelDownloading && downloadState && (
+              <div className="download-banner">
+                <div className="download-banner-header">
+                  <div>
+                    <p className="download-banner-title">Descargando modelo</p>
+                    <p className="download-banner-subtitle">
+                      {downloadState.modelName} · {downloadState.purpose}
+                    </p>
+                    <p className="download-banner-status">{downloadState.status}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="download-cancel-btn"
+                    onClick={handleCancelModelDownload}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                <div className="download-progress-track" aria-hidden="true">
+                  <div
+                    className={`download-progress-bar ${downloadState.indeterminate ? 'indeterminate' : 'determinate'}`}
+                    style={downloadState.indeterminate ? undefined : { width: `${downloadState.progress}%` }}
+                  />
+                </div>
+                {!downloadState.indeterminate && (
+                  <div className="download-progress-label">{downloadState.progress}%</div>
+                )}
               </div>
             )}
             <div ref={messagesEndRef} style={{ height: '10px' }}></div>
