@@ -28,6 +28,8 @@ class ModelDependencyError(RuntimeError):
         self.purpose = purpose
 
 _SYSTEM_PROMPT = """Eres Sententia, un asistente legal experto en la legislación chilena que responde de forma clara, concisa y objetiva.
+Manten un tono neutral y humano, no uses emojis.
+Cuando cites una fuente debes hacerlo explicando el contexto de una forma amigable al usuario no tecnico.
 Responde la pregunta basándote estrictamente en el contexto legal proporcionado por el usuario en la conversacion.
 Si la información no está en el contexto, indícalo claramente y sugiere al usuario que proporcione más información mediante la funcion 'Entrenar'.
 No puedes responder preguntas que no tengan relación con la legislación chilena.
@@ -82,31 +84,22 @@ class LegalRAG:
             if isinstance(model, dict) and model.get("name")
         }
 
-    @staticmethod
-    def _normalize_model_name(model_name: str) -> str:
-        """Compara modelos ignorando el tag por defecto."""
-        return model_name.split(":", 1)[0].strip()
 
     def _require_model(self, model_name: str, purpose: str):
         """Falla con un error controlado si el modelo no está instalado."""
         available_models = self._available_ollama_models()
-        normalized_requested_model = self._normalize_model_name(model_name)
-        normalized_available_models = {
-            self._normalize_model_name(name)
-            for name in available_models
-        }
+        
+        # 1. Coincidencia exacta (ej: 'deepseek-r1:8b' == 'deepseek-r1:8b')
+        if model_name in available_models:
+            return
 
-        if normalized_requested_model not in normalized_available_models:
-            raise ModelDependencyError(model_name=model_name, purpose=purpose)
+        # 2. Manejo de alias automáticos de Ollama (ej: 'modelo' -> 'modelo:latest')
+        if ":" not in model_name and f"{model_name}:latest" in available_models:
+            return
 
-    def _is_ollama_running(self) -> bool:
-        """Verifica si el servidor de Ollama está respondiendo."""
-        try:
-            # Intentamos una petición rápida al endpoint base
-            with urllib.request.urlopen(self._ollama_url, timeout=2) as response:
-                return response.status == 200
-        except Exception:
-            return False
+        # Si llegamos aquí, no encontramos el modelo exacto que el sistema intentará invocar.
+        # Esto previene fallos 404 ocultos cuando se tiene una versión diferente (ej: 14b en vez de 8b).
+        raise ModelDependencyError(model_name=model_name, purpose=purpose)
 
     @property
     def vector_store(self) -> Chroma | None:
