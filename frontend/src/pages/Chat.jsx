@@ -312,7 +312,7 @@ ${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
           ? `### Falta un modelo local\nEl modelo **${modelName}** no está instalado.\n\nSe usa para ${purpose}.\n\n¿Quieres que lo descargue ahora?`
           : statusCode === 401 || statusCode === 403
             ? '### Sesión no autorizada\nNo se pudo validar tu sesión. Vuelve a iniciar sesión o activa el modo demo desde el inicio.'
-            : '### Falla Sistémica\nNo fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos.';
+            : '### Falla Sistémica\nNo fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos, recuerde encender Ollama.';
 
       const errorMessage = { 
         id: generateId(),
