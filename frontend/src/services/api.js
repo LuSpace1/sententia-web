@@ -36,8 +36,6 @@ export const chatService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
-<<<<<<< HEAD
-=======
   pullModel: async (model, { signal, onProgress } = {}) => {
     const response = await fetch(`${API_BASE_URL}/api/models/pull/`, {
       method: 'POST',
@@ -102,5 +100,4 @@ export const chatService = {
 
     return lastEvent;
   },
->>>>>>> fcf4c0ab9100e39151f1d226132f845352baacf8
 };
