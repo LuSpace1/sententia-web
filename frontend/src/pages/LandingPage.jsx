@@ -33,7 +33,7 @@ const AUDIENCES = [
   {
     icon: <Book size={24} />,
     title: 'Estudiantes y Académicos',
-    desc: 'Construye defensas y tesis rápidamente. Correlaciona artículos de distintos códigos con un solo "prompt".'
+    desc: 'Seguridad juridica para estudiantes y académicos. consulta sobre la legalidad del CAE o la ley de educación superior.'
   },
   {
     icon: <Briefcase size={24} />,
