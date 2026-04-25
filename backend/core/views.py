@@ -1,14 +1,9 @@
 import os
-<<<<<<< HEAD
-from pathlib import Path
-from django.core.files.storage import FileSystemStorage
-=======
 import json
 import urllib.request
 from pathlib import Path
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth.hashers import make_password
->>>>>>> fcf4c0ab9100e39151f1d226132f845352baacf8
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import StreamingHttpResponse
@@ -170,8 +165,6 @@ class TrainView(APIView):
             return Response(
                 {"error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-<<<<<<< HEAD
-=======
 
 
 class PullModelView(APIView):
@@ -216,4 +209,3 @@ class PullModelView(APIView):
             event_stream(),
             content_type="application/x-ndjson",
         )
->>>>>>> fcf4c0ab9100e39151f1d226132f845352baacf8
