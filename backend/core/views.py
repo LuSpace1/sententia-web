@@ -99,6 +99,48 @@ class ChatView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Verificar que Ollama está corriendo antes de cualquier otra operación
+        if not _rag_system._is_ollama_running():
+            return Response(
+                {
+                    "error": "El servidor de Ollama no responde. Asegúrate de que Ollama esté abierto y corriendo en tu equipo.",
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        # Detectar TODOS los modelos faltantes de una sola vez
+        missing = _rag_system.get_missing_models()
+        if missing:
+            if len(missing) == 1:
+                m = missing[0]
+                return Response(
+                    {
+                        "error": f'Falta el modelo de Ollama "{m["model"]}"',
+                        "code": "ollama_model_missing",
+                        "model": m["model"],
+                        "purpose": m["purpose"],
+                        "message": (
+                            f'Falta el modelo "{m["model"]}" en Ollama. '
+                            f'Se usa para {m["purpose"]}. '
+                            "Si aceptas descargarlo, el sistema podrá funcionar correctamente."
+                        ),
+                    },
+                    status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                )
+            return Response(
+                {
+                    "error": f'Faltan {len(missing)} modelos en Ollama',
+                    "code": "ollama_models_missing",
+                    "models": missing,
+                    "message": (
+                        f'Faltan {len(missing)} modelos requeridos: '
+                        f'{", ".join(m["model"] for m in missing)}. '
+                        "Descárgalos para que el sistema pueda funcionar correctamente."
+                    ),
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
         try:
             answer = _rag_system.query(question)
             return Response({"answer": answer})

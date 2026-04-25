@@ -101,6 +101,31 @@ class LegalRAG:
         # Esto previene fallos 404 ocultos cuando se tiene una versión diferente (ej: 14b en vez de 8b).
         raise ModelDependencyError(model_name=model_name, purpose=purpose)
 
+    def get_missing_models(self) -> list[dict]:
+        """Retorna la lista de TODOS los modelos requeridos que no están en Ollama."""
+        available = self._available_ollama_models()
+        missing = []
+
+        required = [
+            (
+                self._embed_model_name,
+                "generar los vectores semánticos de los documentos legales",
+            ),
+            (
+                self._llm_model_name,
+                "redactar la respuesta final con base en el contexto recuperado",
+            ),
+        ]
+
+        for model_name, purpose in required:
+            if model_name in available:
+                continue
+            if ":" not in model_name and f"{model_name}:latest" in available:
+                continue
+            missing.append({"model": model_name, "purpose": purpose})
+
+        return missing
+
     @property
     def vector_store(self) -> Chroma | None:
         """Carga la base de datos vectorial de forma diferida (lazy loading)."""
