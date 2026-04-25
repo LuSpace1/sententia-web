@@ -181,7 +181,7 @@ class LegalRAG:
         if not all_documents:
             return False
 
-        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
+        splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
         splits = splitter.split_documents(all_documents)
         if not splits:
             return False
@@ -221,7 +221,7 @@ class LegalRAG:
         )
 
         documents = self._load_documents(file)
-        splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=150)
+        splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
         splits = splitter.split_documents(documents)
 
         vs = self.vector_store
@@ -275,7 +275,10 @@ class LegalRAG:
                 "Usa la funcion 'Entrenar' para agregar contenido legal"
             )
 
-        retriever = vs.as_retriever(search_kwargs={"k": 3})
+        retriever = vs.as_retriever(
+            search_type="mmr",
+            search_kwargs={"k": 10, "fetch_k": 20, "lambda_mult": 0.6},
+        )
         prompt = ChatPromptTemplate.from_template(_SYSTEM_PROMPT)
 
         chain = (
