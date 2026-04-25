@@ -16,8 +16,9 @@ _CHROMA_DIR = str(Path(__file__).resolve().parent.parent.parent / "data" / "chro
 
 _SYSTEM_PROMPT = """Eres Sententia, un asistente legal experto en la legislación chilena que responde de forma clara, concisa y objetiva.
 Responde la pregunta basándote estrictamente en el contexto legal proporcionado por el usuario en la conversacion.
-Si la información no está en el contexto, indícalo claramente y sugiere al usuario que proporcione más información.
+Si la información no está en el contexto, indícalo claramente y sugiere al usuario que proporcione más información mediante la funcion 'Entrenar'.
 No puedes responder preguntas que no tengan relación con la legislación chilena.
+Debes citar la fuente del fragmento utilizado.
 
 Contexto Legal:
 {context}
@@ -29,12 +30,7 @@ Respuesta (en español):"""
 
 
 class LegalRAG:
-    """
-    Sistema de Recuperación Aumentada por Generación (RAG) para consultas legales chilenas.
-
-    Utiliza Ollama (LLM local) y ChromaDB para responder preguntas basadas
-    en documentos legales indexados previamente.
-    """
+    """clase que implementa la logica de RAG" mediante el uso de Ollama y ChromaDB"""
 
     def __init__(self):
         ollama_base_url = config("OLLAMA_BASE_URL", default="http://localhost:11434") #puerto por defecto del servicio de ollama
@@ -66,15 +62,7 @@ class LegalRAG:
         return self._vector_store
 
     def ingest_file(self, file_path: str) -> str:
-        """
-        Procesa e indexa un archivo legal (PDF o TXT) en la base de datos vectorial.
-
-        Args:
-            file_path: Ruta absoluta al archivo a procesar.
-
-        Returns:
-            Mensaje de éxito o error.
-        """
+        """Procesa e indexa un archivo legal (PDF o TXT) en la base de datos vectorial."""
         if file_path.lower().endswith(".pdf"):
             loader = PyPDFLoader(file_path)
         elif file_path.lower().endswith((".txt", ".md")):
@@ -95,15 +83,7 @@ class LegalRAG:
         return f"Éxito: Se indexaron {len(splits)} fragmentos del archivo '{filename}'."
 
     def query(self, question: str) -> str:
-        """
-        Realiza una consulta al sistema RAG.
-
-        Args:
-            question: Pregunta en lenguaje natural.
-
-        Returns:
-            Respuesta generada por el LLM basada en los documentos legales.
-        """
+        """Realiza una consulta al sistema RAG."""
         # 1. Verificar si Ollama está corriendo
         if not self._is_ollama_running():
             return (
