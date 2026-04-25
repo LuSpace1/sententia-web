@@ -37,8 +37,8 @@ const Chat = ({ user, onLogout }) => {
   // ESTADOS DE UI Y ENTRADA
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isModelDownloading, setIsModelDownloading] = useState(false);
-  const [downloadState, setDownloadState] = useState(null); // { modelName, purpose, status, progress, indeterminate }
+  const [downloadStates, setDownloadStates] = useState({}); // { [modelName]: { purpose, status, progress, indeterminate } }
+  const isAnyModelDownloading = Object.keys(downloadStates).length > 0;
   const [copiedId, setCopiedId] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true); // En desktop inicia abierto
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -52,7 +52,7 @@ const Chat = ({ user, onLogout }) => {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const downloadAbortRef = useRef(null);
+  const downloadAbortRefs = useRef({}); // { [modelName]: AbortController }
 
   // Referencia al chat activo actual
   const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
@@ -162,18 +162,16 @@ const Chat = ({ user, onLogout }) => {
   };
 
   const handleModelDownload = async (modelName, purpose) => {
-    if (!modelName || isModelDownloading) return;
+    if (!modelName || downloadStates[modelName]) return;
 
     const abortController = new AbortController();
-    downloadAbortRef.current = abortController;
-    setIsModelDownloading(true);
-    setDownloadState({
-      modelName,
-      purpose,
-      status: 'Conectando con Ollama...',
-      progress: 0,
-      indeterminate: true,
-    });
+    downloadAbortRefs.current[modelName] = abortController;
+
+    setDownloadStates(prev => ({
+      ...prev,
+      [modelName]: { purpose, status: 'Conectando con Ollama...', progress: 0, indeterminate: true },
+    }));
+
     try {
       const finalEvent = await chatService.pullModel(modelName, {
         signal: abortController.signal,
@@ -182,12 +180,14 @@ const Chat = ({ user, onLogout }) => {
           const total = Number(event.total);
           const hasProgress = Number.isFinite(completed) && Number.isFinite(total) && total > 0;
 
-          setDownloadState((current) => ({
-            modelName,
-            purpose,
-            status: event.status || current?.status || 'Descargando...',
-            progress: hasProgress ? Math.max(0, Math.min(100, Math.round((completed / total) * 100))) : current?.progress ?? 0,
-            indeterminate: !hasProgress,
+          setDownloadStates(prev => ({
+            ...prev,
+            [modelName]: {
+              purpose,
+              status: event.status || prev[modelName]?.status || 'Descargando...',
+              progress: hasProgress ? Math.max(0, Math.min(100, Math.round((completed / total) * 100))) : prev[modelName]?.progress ?? 0,
+              indeterminate: !hasProgress,
+            },
           }));
         },
       });
@@ -199,12 +199,7 @@ const Chat = ({ user, onLogout }) => {
       const successMessage = {
         id: generateId(),
         role: 'assistant',
-        content: `### Modelo instalado
-El modelo **${modelName}** ya quedó disponible.
-
-Se usa para ${purpose || 'habilitar esta parte del sistema'}.
-
-Haz tu consulta nuevamente y el RAG podrá continuar.`
+        content: `### Modelo instalado\nEl modelo **${modelName}** ya quedó disponible.\n\nSe usa para ${purpose || 'habilitar esta parte del sistema'}.\n\nHaz tu consulta nuevamente y el RAG podrá continuar.`
       };
 
       setChats(prev => prev.map(c => {
@@ -233,8 +228,7 @@ Haz tu consulta nuevamente y el RAG podrá continuar.`
       const downloadError = {
         id: generateId(),
         role: 'assistant',
-        content: `### No se pudo descargar el modelo
-${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
+        content: `### No se pudo descargar el modelo\n${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
       };
 
       setChats(prev => prev.map(c => {
@@ -244,15 +238,23 @@ ${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
         return c;
       }));
     } finally {
-      downloadAbortRef.current = null;
-      setIsModelDownloading(false);
-      setDownloadState(null);
+      delete downloadAbortRefs.current[modelName];
+      setDownloadStates(prev => {
+        const next = { ...prev };
+        delete next[modelName];
+        return next;
+      });
       if (window.innerWidth > 860) inputRef.current?.focus();
     }
   };
 
-  const handleCancelModelDownload = () => {
-    downloadAbortRef.current?.abort();
+  // Inicia la descarga de múltiples modelos en paralelo
+  const handleMultipleModelsDownload = (models) => {
+    models.forEach(({ model, purpose }) => handleModelDownload(model, purpose));
+  };
+
+  const handleCancelModelDownload = (modelName) => {
+    downloadAbortRefs.current[modelName]?.abort();
   };
 
   const handleSkipModelDownload = (modelName) => {
@@ -308,17 +310,31 @@ ${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
         const errorCode = err?.response?.data?.code;
         const modelName = err?.response?.data?.model;
         const purpose = err?.response?.data?.purpose;
-        const errorContent = errorCode === 'ollama_model_missing'
-          ? `### Falta un modelo local\nEl modelo **${modelName}** no está instalado.\n\nSe usa para ${purpose}.\n\n¿Quieres que lo descargue ahora?`
-          : statusCode === 401 || statusCode === 403
-            ? '### Sesión no autorizada\nNo se pudo validar tu sesión. Vuelve a iniciar sesión o activa el modo demo desde el inicio.'
-            : `### Falla Sistémica\n${err?.response?.data?.error || 'No fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos, recuerde encender Ollama.'}`;
+        const missingModels = err?.response?.data?.models; // array para ollama_models_missing
+
+        let errorContent;
+        let modelPrompt = null;
+        let modelPrompts = null;
+
+        if (errorCode === 'ollama_models_missing' && missingModels?.length > 0) {
+          const modelList = missingModels.map(m => `- **${m.model}**: ${m.purpose}`).join('\n');
+          errorContent = `### Faltan modelos locales\nLos siguientes modelos no están instalados en Ollama:\n\n${modelList}\n\n¿Quieres que los descargue ahora?`;
+          modelPrompts = missingModels;
+        } else if (errorCode === 'ollama_model_missing') {
+          errorContent = `### Falta un modelo local\nEl modelo **${modelName}** no está instalado.\n\nSe usa para ${purpose}.\n\n¿Quieres que lo descargue ahora?`;
+          modelPrompt = { model: modelName, purpose };
+        } else if (statusCode === 401 || statusCode === 403) {
+          errorContent = '### Sesión no autorizada\nNo se pudo validar tu sesión. Vuelve a iniciar sesión o activa el modo demo desde el inicio.';
+        } else {
+          errorContent = `### Falla Sistémica\n${err?.response?.data?.error || 'No fue posible contactar con los servidores de inferencia profunda. Reintente en unos momentos, recuerde encender Ollama.'}`;
+        }
 
       const errorMessage = { 
         id: generateId(),
         role: 'assistant', 
-          content: errorContent,
-          modelPrompt: errorCode === 'ollama_model_missing' ? { model: modelName, purpose } : null
+        content: errorContent,
+        modelPrompt,
+        modelPrompts,
       };
       setChats(prev => prev.map(c => {
         if (c.id === activeChatId) {
@@ -562,7 +578,7 @@ ${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
                         type="button"
                         className="model-action-btn primary"
                         onClick={() => handleModelDownload(msg.modelPrompt.model, msg.modelPrompt.purpose)}
-                        disabled={loading || isModelDownloading}
+                        disabled={loading || isAnyModelDownloading}
                       >
                         Sí, descargar modelo
                       </button>
@@ -570,10 +586,46 @@ ${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
                         type="button"
                         className="model-action-btn secondary"
                         onClick={() => handleSkipModelDownload(msg.modelPrompt.model)}
-                        disabled={loading || isModelDownloading}
+                        disabled={loading || isAnyModelDownloading}
                       >
                         No ahora
                       </button>
+                    </div>
+                  )}
+                  {msg.modelPrompts && (
+                    <div className="model-prompt-actions">
+                      <button
+                        type="button"
+                        className="model-action-btn primary"
+                        onClick={() => handleMultipleModelsDownload(msg.modelPrompts)}
+                        disabled={loading || isAnyModelDownloading}
+                      >
+                        Sí, descargar {msg.modelPrompts.length} modelos
+                      </button>
+                      <button
+                        type="button"
+                        className="model-action-btn secondary"
+                        onClick={() => handleSkipModelDownload(msg.modelPrompts.map(m => m.model).join(' y '))}
+                        disabled={loading || isAnyModelDownloading}
+                      >
+                        No ahora
+                      </button>
+                      {/* Sección discreta: descarga individual */}
+                      <div className="model-prompt-individual">
+                        <span className="model-prompt-individual-label">O solo uno:</span>
+                        {msg.modelPrompts.map(m => (
+                          <button
+                            key={m.model}
+                            type="button"
+                            className="model-individual-btn"
+                            onClick={() => handleModelDownload(m.model, m.purpose)}
+                            disabled={loading || !!downloadStates[m.model]}
+                            title={m.purpose}
+                          >
+                            {m.model}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -597,35 +649,35 @@ ${err.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`
               </div>
             )}
 
-            {isModelDownloading && downloadState && (
-              <div className="download-banner">
+            {Object.entries(downloadStates).map(([modelName, state]) => (
+              <div key={modelName} className="download-banner">
                 <div className="download-banner-header">
                   <div>
                     <p className="download-banner-title">Descargando modelo</p>
                     <p className="download-banner-subtitle">
-                      {downloadState.modelName} · {downloadState.purpose}
+                      {modelName} · {state.purpose}
                     </p>
-                    <p className="download-banner-status">{downloadState.status}</p>
+                    <p className="download-banner-status">{state.status}</p>
                   </div>
                   <button
                     type="button"
                     className="download-cancel-btn"
-                    onClick={handleCancelModelDownload}
+                    onClick={() => handleCancelModelDownload(modelName)}
                   >
                     Cancelar
                   </button>
                 </div>
                 <div className="download-progress-track" aria-hidden="true">
                   <div
-                    className={`download-progress-bar ${downloadState.indeterminate ? 'indeterminate' : 'determinate'}`}
-                    style={downloadState.indeterminate ? undefined : { width: `${downloadState.progress}%` }}
+                    className={`download-progress-bar ${state.indeterminate ? 'indeterminate' : 'determinate'}`}
+                    style={state.indeterminate ? undefined : { width: `${state.progress}%` }}
                   />
                 </div>
-                {!downloadState.indeterminate && (
-                  <div className="download-progress-label">{downloadState.progress}%</div>
+                {!state.indeterminate && (
+                  <div className="download-progress-label">{state.progress}%</div>
                 )}
               </div>
-            )}
+            ))}
             <div ref={messagesEndRef} style={{ height: '10px' }}></div>
           </div>
         </div>

@@ -956,8 +956,6 @@
   color: #fb7185; 
 }
 
-<<<<<<< HEAD
-=======
 .model-prompt-actions {
   display: flex;
   gap: 0.75rem;
@@ -996,12 +994,59 @@
   cursor: not-allowed;
 }
 
+/* Sección discreta para descargar de a uno */
+.model-prompt-individual {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.model-prompt-individual-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.model-individual-btn {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.model-individual-btn:hover:not(:disabled) {
+  color: var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.model-individual-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .download-banner {
   margin-top: 1rem;
   padding: 1rem;
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Reduce el espacio entre banners consecutivos a la mitad */
+.download-banner + .download-banner {
+  margin-top: 0.5rem;
 }
 
 .download-banner-header {
@@ -1081,7 +1126,13 @@
     transform: translateX(260%);
   }
 }
->>>>>>> fcf4c0ab9100e39151f1d226132f845352baacf8
+
+.download-progress-label {
+  margin-top: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-align: right;
+}
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes modalSlideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
