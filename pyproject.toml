@@ -4,7 +4,9 @@ version = "0.1.0"
 description = "Monorepo de Sententia - Asistente Legal"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "langchain>=1.2.15",
+]
 
 [tool.uv.workspace]
 members = ["backend"]
