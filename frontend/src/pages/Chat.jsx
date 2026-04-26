@@ -296,7 +296,14 @@ const Chat = ({ user, onLogout }) => {
     setLoading(true);
 
     try {
-      const response = await chatService.sendMessage(userMsgContent);
+      // Construir historial: mensajes user/assistant previos (excluye sistema y el nuevo mensaje)
+      // Se limita a 8 mensajes (4 turnos) para no saturar el contexto del modelo local
+      const historyMessages = messages
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .slice(-8)
+        .map(m => ({ role: m.role, content: m.content }));
+
+      const response = await chatService.sendMessage(userMsgContent, historyMessages);
       const assistantMessage = { id: generateId(), role: 'assistant', content: response.data.answer };
       
       setChats(prev => prev.map(c => {

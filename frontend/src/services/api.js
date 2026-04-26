@@ -28,7 +28,7 @@ export const authService = {
 };
 
 export const chatService = {
-  sendMessage: (question) => apiClient.post('/api/chat/', { question }),
+  sendMessage: (question, chatHistory = []) => apiClient.post('/api/chat/', { question, chat_history: chatHistory }),
   train: (file) => {
     const formData = new FormData();
     formData.append('file', file);
