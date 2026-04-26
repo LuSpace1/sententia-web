@@ -14,6 +14,7 @@ from django.contrib.auth import authenticate
 
 from .serializers import UserSerializer
 from .rag_logic import LegalRAG, ModelDependencyError
+from langchain_core.messages import HumanMessage, AIMessage
 
 # Instancia compartida del sistema RAG (se inicializa una sola vez)
 _rag_system = LegalRAG()
@@ -142,7 +143,16 @@ class ChatView(APIView):
             )
 
         try:
-            answer = _rag_system.query(question)
+            # Convertir historial del frontend [{role, content}] a objetos LangChain
+            raw_history = request.data.get("chat_history", [])
+            chat_history = []
+            for msg in raw_history:
+                if msg.get("role") == "user":
+                    chat_history.append(HumanMessage(content=msg["content"]))
+                elif msg.get("role") == "assistant":
+                    chat_history.append(AIMessage(content=msg["content"]))
+
+            answer = _rag_system.query(question, chat_history=chat_history)
             return Response({"answer": answer})
         except ModelDependencyError as exc:
             return Response(
