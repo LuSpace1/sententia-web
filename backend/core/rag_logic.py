@@ -1,15 +1,15 @@
 import os
 import json
 import urllib.request
-import urllib.request
 from pathlib import Path
 
 from decouple import config
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.runnables import RunnablePassthrough
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 from langchain_ollama import ChatOllama, OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -27,21 +27,25 @@ class ModelDependencyError(RuntimeError):
         self.model_name = model_name
         self.purpose = purpose
 
-_SYSTEM_PROMPT = """Eres Sententia, un asistente legal experto en la legislación chilena que responde de forma clara, concisa y objetiva.
-Manten un tono neutral y humano, no uses emojis.
-Cuando cites una fuente debes hacerlo explicando el contexto de una forma amigable al usuario no tecnico.
-Responde la pregunta basándote estrictamente en el contexto legal proporcionado por el usuario en la conversacion.
-Si la información no está en el contexto, indícalo claramente y sugiere al usuario que proporcione más información mediante la funcion 'Entrenar'.
-No puedes responder preguntas que no tengan relación con la legislación chilena.
-Debes citar la fuente del fragmento utilizado.
+# Prompt para reformular preguntas de seguimiento como preguntas independientes
+_CONTEXTUALIZE_PROMPT = """Dado el historial de conversación y la última pregunta del usuario,
+que puede hacer referencia a mensajes anteriores, reformula la pregunta de forma que sea
+comprensible por sí sola sin necesitar el historial. Si ya es independiente, devuélvela tal cual.
+NO respondas la pregunta, solo reformúlala si es necesario."""
+
+# Prompt del sistema para la respuesta final
+_SYSTEM_PROMPT = """Eres Sententia, un asistente legal de alta precisión experto en legislación chilena.
+
+REGLAS CRÍTICAS:
+1. GROUNDING ESTRICTO: Basa tu respuesta PRINCIPALMENTE en el "Contexto Legal" proporcionado.
+2. PROHIBICIÓN DE INVENTAR: Nunca inventes números de artículos, nombres de leyes ni sanciones específicas que no estén en el contexto. Si debes mencionar datos que no están en el contexto, indícalo explícitamente con: "(dato no encontrado en el contexto provisto)".
+3. RESPUESTA PARCIAL PERMITIDA: Si el contexto solo tiene información parcial, responde con lo que tienes e indica qué aspectos no pudieron ser verificados en el contexto disponible.
+4. CITAS OBLIGATORIAS: Cuando el contexto contenga un artículo o ley específica, cítala entre corchetes: [Código Penal, Art. 14].
+5. PRIORIZACIÓN: Si encuentras información contradictoria, prioriza las Leyes Especiales sobre los Códigos Generales.
+6. TONO: Profesional, técnico y directo. Sin introducciones innecesarias.
 
 Contexto Legal:
-{context}
-
-Pregunta:
-{question}
-
-Respuesta (en español):"""
+{context}"""
 
 
 class LegalRAG:
@@ -181,7 +185,16 @@ class LegalRAG:
         if not all_documents:
             return False
 
-        splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1600,
+            chunk_overlap=200,
+            separators=[
+                "\nARTÍCULO", "\nArtículo", "\nArt.",
+                "\nTÍTULO", "\nTítulo",
+                "\nLIBRO", "\nLibro",
+                "\n\n", "\n", " ", ""
+            ]
+        )
         splits = splitter.split_documents(all_documents)
         if not splits:
             return False
@@ -221,7 +234,16 @@ class LegalRAG:
         )
 
         documents = self._load_documents(file)
-        splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1600,
+            chunk_overlap=200,
+            separators=[
+                "\nARTÍCULO", "\nArtículo", "\nArt.",
+                "\nTÍTULO", "\nTítulo",
+                "\nLIBRO", "\nLibro",
+                "\n\n", "\n", " ", ""
+            ]
+        )
         splits = splitter.split_documents(documents)
 
         vs = self.vector_store
@@ -238,7 +260,7 @@ class LegalRAG:
         filename = os.path.basename(file_path)
         return f"Éxito: Se indexaron {len(splits)} fragmentos del archivo '{filename}'."
 
-    def query(self, question: str) -> str:
+    def query(self, question: str, chat_history: list | None = None) -> str:
         """
         Realiza una consulta al sistema RAG.
 
@@ -248,6 +270,7 @@ class LegalRAG:
         Returns:
             Respuesta generada por el LLM basada en los documentos legales.
         """
+        chat_history = chat_history or []
         # 1. Verificar si Ollama está corriendo
         if not self._is_ollama_running():
             return (
@@ -277,17 +300,49 @@ class LegalRAG:
 
         retriever = vs.as_retriever(
             search_type="mmr",
-            search_kwargs={"k": 10, "fetch_k": 20, "lambda_mult": 0.6},
+            search_kwargs={"k": 8, "fetch_k": 20, "lambda_mult": 0.5},
         )
-        prompt = ChatPromptTemplate.from_template(_SYSTEM_PROMPT)
+
+        # Limitar historial a los últimos 4 turnos (2 exchanges) para no saturar el contexto
+        MAX_HISTORY_TURNS = 4
+        trimmed_history = chat_history[-MAX_HISTORY_TURNS:] if len(chat_history) > MAX_HISTORY_TURNS else chat_history
+
+        # --- Paso 1: Reformular la pregunta si hay historial ---
+        # Si el usuario pregunta "Es igual para todos?", el LLM lo convierte en
+        # "Los 15 días de feriado del Art. 67 aplican igual para todos los trabajadores?"
+        contextualize_prompt = ChatPromptTemplate.from_messages([
+            ("system", _CONTEXTUALIZE_PROMPT),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{input}"),
+        ])
+        contextualize_chain = contextualize_prompt | self.llm | StrOutputParser()
+
+        def contextualized_retriever(input_dict: dict):
+            """Reformula la pregunta con el historial y luego busca en ChromaDB."""
+            if input_dict.get("chat_history"):
+                reformulated = contextualize_chain.invoke(input_dict)
+                return retriever.invoke(reformulated)
+            return retriever.invoke(input_dict["input"])
+
+        # --- Paso 2: Cadena de respuesta con contexto e historial ---
+        qa_prompt = ChatPromptTemplate.from_messages([
+            ("system", _SYSTEM_PROMPT),
+            MessagesPlaceholder("chat_history"),
+            ("human", "{input}"),
+        ])
 
         chain = (
-            {"context": retriever | self._format_docs, "question": RunnablePassthrough()}
-            | prompt
+            RunnablePassthrough.assign(
+                context=RunnableLambda(
+                    lambda x: self._format_docs(contextualized_retriever(x))
+                )
+            )
+            | qa_prompt
             | self.llm
             | StrOutputParser()
         )
-        return chain.invoke(question)
+
+        return chain.invoke({"input": question, "chat_history": trimmed_history})
 
     @staticmethod
     def _format_docs(docs) -> str:
