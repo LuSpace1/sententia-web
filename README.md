@@ -79,3 +79,6 @@ npm run dev
 
 > Para indexar nuevos documentos (PDF o TXT) usa `LegalRAG.ingest_file()` desde la shell de Django (`python manage.py shell`).
 
+
+## Estetica
+Sententia Web utiliza una estetica Gold Glassmorphism.
