@@ -113,11 +113,11 @@ class LegalRAG:
         required = [
             (
                 self._embed_model_name,
-                "generar los vectores semánticos de los documentos legales",
+                "Este modelo se encarga de generar los vectores semánticos de los documentos legales",
             ),
             (
                 self._llm_model_name,
-                "redactar la respuesta final con base en el contexto recuperado",
+                "Este modelo se encarga de generar la respuesta final con base en el contexto recuperado",
             ),
         ]
 
