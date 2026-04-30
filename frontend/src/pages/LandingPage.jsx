@@ -14,7 +14,7 @@ const FEATURES = [
   },
   {
     icon: <Fingerprint size={24} />,
-    title: 'Privacidad Radialmente Local',
+    title: 'Privacidad en Local',
     desc: 'Tu información nunca toca la nube. El procesamiento de RAG local asegura que la confidencialidad abogado-cliente permanezca infranqueable.'
   },
   {
@@ -193,7 +193,7 @@ const LandingPage = ({ user, onLogout, onDemo }) => {
               <div className={styles.stepItem}>
                 <div className={styles.stepNumber}>1</div>
                 <div>
-                  <h4 className="fw-bold mb-2">Ingesta de Corpus</h4>
+                  <h4 className="fw-bold mb-2">Ingesta de Datos</h4>
                   <p className="text-secondary mb-0">Sententia pre-vectoriza el Código Civil, la Constitución y jurisprudencia clave a través del backend RAG.</p>
                 </div>
               </div>
