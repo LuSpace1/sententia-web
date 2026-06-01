@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import type { Chat, TrainingStatus } from '../types';
 import { chatService } from '../services/api';
-import { usePreferences } from '../context/usePreferences';
 
 interface Props {
   chats: Chat[];
@@ -176,28 +175,9 @@ export default function SettingsModal({
           {settingsTab === 'customization' && (
             <div className="flex flex-col gap-5">
               <h3 className="font-serif text-base font-[450] text-text-main">Personalización</h3>
-              <div className="bg-accent-muted border border-accent/15 p-5 rounded-xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-text-main text-sm font-[450]">Citas legales</p>
-                    <p className="text-text-muted text-xs font-[350] mt-0.5">Mostrar fuentes y citas en respuestas</p>
-                  </div>
-                  <button
-                    onClick={() => updatePreference('citationsEnabled', !preferences.citationsEnabled)}
-                    className={`relative w-10 h-5 rounded-full transition-all cursor-pointer border-none ${
-                      preferences.citationsEnabled ? 'bg-accent/40' : 'bg-white/[0.08]'
-                    }`}>
-                    <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${
-                      preferences.citationsEnabled ? 'left-[22px]' : 'left-0.5'
-                    }`} />
-                  </button>
-                </div>
-              </div>
-              <button
-                onClick={resetPreferences}
-                className="self-start px-4 py-2 rounded-xl border border-glass-border text-text-muted text-xs font-[350] cursor-pointer transition-all hover:border-danger/20 hover:text-danger/80 hover:bg-danger/5">
-                Restablecer valores predeterminados
-              </button>
+              <p className="bg-accent-muted border border-accent/15 p-4 rounded-xl text-sm text-text-sub font-[350] leading-relaxed">
+                Ajustes de apariencia y personalización. Más opciones próximamente.
+              </p>
             </div>
           )}
 

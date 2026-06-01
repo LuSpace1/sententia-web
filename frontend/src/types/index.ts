@@ -76,11 +76,6 @@ export interface TrainingStatus {
   message: string;
 }
 
-export interface UserPreferences {
-  defaultPracticeArea?: string;
-  citationsEnabled?: boolean;
-}
-
 export interface PullProgressEvent {
   status?: string;
   error?: string;

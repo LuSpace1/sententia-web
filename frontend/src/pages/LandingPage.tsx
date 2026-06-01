@@ -119,17 +119,15 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-24 animate-slide-up stagger-3">
-              <Link to={user ? '/chat' : '/register'}
+              <Link to="/register"
                 className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full glass-panel-strong border border-accent/20 text-accent font-[450] hover:bg-accent/10 hover:border-accent/30 transition-all text-base">
                 Iniciar Consulta Legal
                 <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
-              {!user && (
-                <button onClick={handleDemoClick}
+              <button onClick={handleDemoClick}
                   className="px-8 py-3.5 rounded-full bg-white/[0.03] border border-glass-border-light text-text-sub font-[400] cursor-pointer hover:text-accent hover:border-accent/25 hover:bg-accent/[0.04] hover:-translate-y-0.5 transition-all text-base">
                   Probar el Sistema
                 </button>
-              )}
             </div>
 
             {/* Terminal demo */}
