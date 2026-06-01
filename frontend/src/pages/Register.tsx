@@ -41,7 +41,7 @@ export default function Register() {
             <ChevronLeft size={16} className="mr-1" /> Volver al inicio
           </Link>
           <h2 className="text-4xl font-extrabold tracking-tight mb-2">Registro.</h2>
-          <p className="text-zinc-400">Crea tu cuenta legal por $1.000/mes.</p>
+          <p className="text-zinc-400">Crea tu cuenta gratuita y empieza a consultar.</p>
         </div>
 
         {error && (

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Scale, Shield, Zap, Search, Fingerprint, Book, Users, Briefcase, ArrowRight, Code } from 'lucide-react';
+import { Scale, Shield, Zap, Search, Fingerprint, Book, Users, Briefcase, ArrowRight, Code, Cpu } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import heroBg from '../assets/images/hero_justice_hall.jpg';
 import featureImg from '../assets/images/feature_evidence.jpg';
@@ -146,7 +146,7 @@ export default function LandingPage() {
             <span className="flex items-center gap-2 font-bold text-lg tracking-tight"><Code size={20} /> LangChain</span>
             <span className="flex items-center gap-2 font-bold text-lg tracking-tight"><Zap size={20} /> Ollama</span>
             <span className="flex items-center gap-2 font-bold text-lg tracking-tight"><Search size={20} /> ChromaDB</span>
-            <span className="flex items-center gap-2 font-bold text-lg tracking-tight"><Book size={20} /> LlamaIndex</span>
+            <span className="flex items-center gap-2 font-bold text-lg tracking-tight"><Cpu size={20} /> DeepSeek-R1</span>
           </div>
         </div>
       </section>
