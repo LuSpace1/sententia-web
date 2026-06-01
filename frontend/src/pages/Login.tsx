@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Shield } from 'lucide-react';
 import { authService } from '../services/api';
 import { useAuth } from '../context/useAuth';
 import heroBg from '../assets/images/hero_justice_hall.jpg';
@@ -20,7 +20,6 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
     try {
       const { data } = await authService.login(formData);
       handleLogin(data);
@@ -33,31 +32,44 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center p-8"
-      style={{ backgroundImage: `linear-gradient(135deg, rgba(3,3,5,0.9) 0%, rgba(3,3,5,0.75) 100%), url(${heroBg})` }}>
-      <div className="w-full max-w-[420px] bg-black/[0.4] backdrop-blur-xl border border-white/10 rounded-2xl p-12 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)]">
-        <div className="mb-12">
-          <Link to="/" className="inline-flex items-center text-sm text-zinc-400 hover:text-white transition-colors mb-8">
-            <ChevronLeft size={16} className="mr-1" /> Volver al inicio
+    <div className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(7,7,10,0.92) 0%, rgba(7,7,10,0.85) 100%), url(${heroBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[20%] -left-[10%] w-[50vw] h-[50vw] rounded-full opacity-[0.03]"
+          style={{ background: 'radial-gradient(circle, #c9a84c 0%, transparent 70%)', filter: 'blur(100px)' }} />
+      </div>
+
+      <div className="w-full max-w-[400px] glass-panel-strong rounded-2xl p-10 animate-modal">
+        <div className="mb-10">
+          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-sub transition-colors mb-6 group">
+            <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+            Volver
           </Link>
-          <h2 className="text-4xl font-extrabold tracking-tight mb-2">Entrar.</h2>
-          <p className="text-zinc-400">Accede a tu asesoría legal personal.</p>
+          <div className="flex items-center gap-3 mb-2">
+            <Shield size={18} className="text-accent" />
+            <h2 className="font-serif text-3xl font-[400] tracking-[-0.02em]">Entrar</h2>
+          </div>
+          <p className="text-text-sub text-sm font-[350]">Accede a tu asesoría legal personal.</p>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 text-red-500 p-4 rounded-xl text-sm border border-red-500/20 mb-6" role="alert">
+          <div className="bg-danger/10 text-danger text-sm p-3.5 rounded-xl border border-danger/20 mb-6 font-[350]" role="alert">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="login-username" className="text-sm font-medium text-white">Usuario</label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="login-username" className="text-sm font-[450] text-text-main">Usuario</label>
             <input
               id="login-username"
               type="text"
               name="username"
-              className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3.5 text-white text-base transition-all focus:outline-none focus:border-indigo-400 focus:bg-white/[0.05] focus:shadow-[0_0_0_4px_rgba(129,140,248,0.1)]"
+              className="w-full bg-white/[0.03] border border-glass-border rounded-xl px-4 py-3.5 text-text-main text-base transition-all focus:outline-none focus:border-accent/40 focus:bg-white/[0.05] font-[350] placeholder:text-text-muted"
               placeholder="Usuario"
               autoComplete="username"
               value={formData.username}
@@ -65,13 +77,13 @@ export default function Login() {
               required
             />
           </div>
-          <div className="flex flex-col gap-2">
-            <label htmlFor="login-password" className="text-sm font-medium text-white">Contraseña</label>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="login-password" className="text-sm font-[450] text-text-main">Contraseña</label>
             <input
               id="login-password"
               type="password"
               name="password"
-              className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3.5 text-white text-base transition-all focus:outline-none focus:border-indigo-400 focus:bg-white/[0.05] focus:shadow-[0_0_0_4px_rgba(129,140,248,0.1)]"
+              className="w-full bg-white/[0.03] border border-glass-border rounded-xl px-4 py-3.5 text-text-main text-base transition-all focus:outline-none focus:border-accent/40 focus:bg-white/[0.05] font-[350] placeholder:text-text-muted"
               placeholder="Contraseña"
               autoComplete="current-password"
               value={formData.password}
@@ -79,14 +91,18 @@ export default function Login() {
               required
             />
           </div>
-          <button className="w-full bg-white text-black font-semibold rounded-xl py-4 text-base mt-4 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(255,255,255,0.1)] disabled:opacity-70 disabled:cursor-not-allowed" type="submit" disabled={loading} aria-busy={loading}>
+          <button
+            className="w-full py-3.5 rounded-xl bg-accent/10 border border-accent/20 text-accent font-[450] mt-3 transition-all hover:bg-accent/15 hover:border-accent/30 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            type="submit"
+            disabled={loading}
+            aria-busy={loading}>
             {loading ? 'Entrando…' : 'Iniciar Sesión'}
           </button>
         </form>
 
-        <div className="mt-8 text-center text-sm text-zinc-400">
+        <div className="mt-8 text-center text-sm text-text-muted font-[350]">
           <span>¿No tienes cuenta? </span>
-          <Link to="/register" className="text-white font-semibold ml-1 hover:underline">
+          <Link to="/register" className="text-accent font-[450] ml-1 hover:opacity-80 transition-opacity">
             Regístrate
           </Link>
         </div>

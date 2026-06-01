@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Menu, PanelLeftOpen, FileText, Search, X } from 'lucide-react';
+import { useState, useRef, useCallback, useMemo } from 'react';
+import { Menu, PanelLeftOpen, Search, X, FileText } from 'lucide-react';
 import { chatService } from '../services/api';
 import { generateId } from '../utils';
 import ChatSidebar from '../components/ChatSidebar';
@@ -24,6 +24,12 @@ const createInitialChat = (): ChatType => ({
   messages: [],
 });
 
+const SUGGESTIONS = [
+  '¿Qué dice el Artículo 19 sobre la libertad de expresión?',
+  'Explícame los requisitos para formar una sociedad',
+  '¿Cuáles son mis derechos como arrendatario?',
+];
+
 export default function Chat() {
   const [chats, setChats] = useState<ChatType[]>([createInitialChat()]);
   const [activeChatId, setActiveChatId] = useState(chats[0].id);
@@ -45,10 +51,6 @@ export default function Chat() {
 
   const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
   const messages = useMemo(() => activeChat?.messages || [], [activeChat?.messages]);
-
-  useEffect(() => {
-    document.body.setAttribute('data-theme', 'dark-liquid');
-  }, []);
 
   const handleNewChat = useCallback(() => {
     if (activeChat.messages.length <= 1 && activeChat.title === 'Nueva Consulta Legal') {
@@ -146,7 +148,6 @@ export default function Chat() {
 
   const handleModelDownload = useCallback(async (modelName: string, purpose: string) => {
     if (!modelName || downloadStates[modelName]) return;
-
     const abortController = new AbortController();
     downloadAbortRefs.current[modelName] = abortController;
 
@@ -162,7 +163,6 @@ export default function Chat() {
           const completed = Number(event.completed);
           const total = Number(event.total);
           const hasProgress = Number.isFinite(completed) && Number.isFinite(total) && total > 0;
-
           setDownloadStates(prev => ({
             ...prev,
             [modelName]: {
@@ -184,48 +184,34 @@ export default function Chat() {
         role: 'assistant',
         content: `### Modelo instalado\nEl modelo **${modelName}** ya quedó disponible.\n\nSe usa para ${purpose || 'habilitar esta parte del sistema'}.\n\nHaz tu consulta nuevamente y el RAG podrá continuar.`,
       };
-
       setChats(prev => prev.map(c => {
-        if (c.id === activeChatId) {
-          return { ...c, messages: [...c.messages, successMessage], updatedAt: Date.now() };
-        }
+        if (c.id === activeChatId) return { ...c, messages: [...c.messages, successMessage], updatedAt: Date.now() };
         return c;
       }));
     } catch (err) {
       const error = err as Error & { name?: string; code?: string; response?: { data?: { error?: string } } };
       if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') {
         const cancelMessage: Message = {
-          id: generateId(),
-          role: 'assistant',
+          id: generateId(), role: 'assistant',
           content: `### Descarga cancelada\nNo se descargó **${modelName}**. Puedes volver a intentarlo cuando quieras.`,
         };
         setChats(prev => prev.map(c => {
-          if (c.id === activeChatId) {
-            return { ...c, messages: [...c.messages, cancelMessage], updatedAt: Date.now() };
-          }
+          if (c.id === activeChatId) return { ...c, messages: [...c.messages, cancelMessage], updatedAt: Date.now() };
           return c;
         }));
         return;
       }
-
       const downloadError: Message = {
-        id: generateId(),
-        role: 'assistant',
+        id: generateId(), role: 'assistant',
         content: `### No se pudo descargar el modelo\n${error.response?.data?.error || 'Ocurrió un error al intentar descargarlo.'}`,
       };
       setChats(prev => prev.map(c => {
-        if (c.id === activeChatId) {
-          return { ...c, messages: [...c.messages, downloadError], updatedAt: Date.now() };
-        }
+        if (c.id === activeChatId) return { ...c, messages: [...c.messages, downloadError], updatedAt: Date.now() };
         return c;
       }));
     } finally {
       delete downloadAbortRefs.current[modelName];
-      setDownloadStates(prev => {
-        const next = { ...prev };
-        delete next[modelName];
-        return next;
-      });
+      setDownloadStates(prev => { const next = { ...prev }; delete next[modelName]; return next; });
     }
   }, [downloadStates, activeChatId]);
 
@@ -239,14 +225,11 @@ export default function Chat() {
 
   const handleSkipModelDownload = useCallback((modelName: string) => {
     const skipMessage: Message = {
-      id: generateId(),
-      role: 'assistant',
+      id: generateId(), role: 'assistant',
       content: `### Entendido\nNo descargaré **${modelName}** por ahora.\n\nCuando quieras, puedes volver a intentar la consulta o instalar el modelo desde este mismo chat.`,
     };
     setChats(prev => prev.map(c => {
-      if (c.id === activeChatId) {
-        return { ...c, messages: [...c.messages, skipMessage], updatedAt: Date.now() };
-      }
+      if (c.id === activeChatId) return { ...c, messages: [...c.messages, skipMessage], updatedAt: Date.now() };
       return c;
     }));
   }, [activeChatId]);
@@ -264,43 +247,22 @@ export default function Chat() {
     }
 
     setChats(prev => prev.map(c => {
-      if (c.id === activeChatId) {
-        return { ...c, title: newTitle, messages: [...c.messages, userMessage], updatedAt: Date.now() };
-      }
+      if (c.id === activeChatId) return { ...c, title: newTitle, messages: [...c.messages, userMessage], updatedAt: Date.now() };
       return c;
     }));
-
     setInput('');
     setLoading(true);
 
     try {
-      const historyMessages = messages
-        .filter(m => m.role === 'user' || m.role === 'assistant')
-        .slice(-8)
-        .map(m => ({ role: m.role, content: m.content }));
-
+      const historyMessages = messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-8).map(m => ({ role: m.role, content: m.content }));
       const response = await chatService.sendMessage(userMsgContent, historyMessages);
       const assistantMessage: Message = { id: generateId(), role: 'assistant', content: response.data.answer };
-
       setChats(prev => prev.map(c => {
-        if (c.id === activeChatId) {
-          return { ...c, messages: [...c.messages, assistantMessage], updatedAt: Date.now() };
-        }
+        if (c.id === activeChatId) return { ...c, messages: [...c.messages, assistantMessage], updatedAt: Date.now() };
         return c;
       }));
     } catch (err) {
-      const axiosErr = err as {
-        response?: {
-          status?: number;
-          data?: {
-            code?: string;
-            model?: string;
-            purpose?: string;
-            error?: string;
-            models?: ModelPrompt[];
-          };
-        };
-      };
+      const axiosErr = err as { response?: { status?: number; data?: { code?: string; model?: string; purpose?: string; error?: string; models?: ModelPrompt[] } } };
       const statusCode = axiosErr?.response?.status;
       const errorCode = axiosErr?.response?.data?.code;
       const modelName = axiosErr?.response?.data?.model;
@@ -324,17 +286,9 @@ export default function Chat() {
         errorContent = `### Falla Sistémica\n${axiosErr?.response?.data?.error || 'No fue posible contactar con los servidores de Sententia. Reintente en unos momentos, recuerde encender Ollama.'}`;
       }
 
-      const errorMessage: Message = {
-        id: generateId(),
-        role: 'assistant',
-        content: errorContent,
-        modelPrompt,
-        modelPrompts,
-      };
+      const errorMessage: Message = { id: generateId(), role: 'assistant', content: errorContent, modelPrompt, modelPrompts };
       setChats(prev => prev.map(c => {
-        if (c.id === activeChatId) {
-          return { ...c, messages: [...c.messages, errorMessage], updatedAt: Date.now() };
-        }
+        if (c.id === activeChatId) return { ...c, messages: [...c.messages, errorMessage], updatedAt: Date.now() };
         return c;
       }));
     } finally {
@@ -346,8 +300,19 @@ export default function Chat() {
     setChats(prev => prev.map(c => c.id === id ? { ...c, isHidden: false } : c));
   }, []);
 
+  const handleSuggestionClick = useCallback((text: string) => {
+    setInput(text);
+  }, []);
+
   return (
-    <div className={`flex h-screen w-full overflow-hidden bg-[#09090b] text-white/95 font-[Outfit] ${showSidebar ? '' : ''}`}>
+    <div className="flex h-screen w-full overflow-hidden bg-surface">
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 right-0 w-[40vw] h-[40vw] rounded-full opacity-[0.02]"
+          style={{ background: 'radial-gradient(circle, #c9a84c 0%, transparent 70%)', filter: 'blur(120px)' }} />
+        <div className="absolute bottom-0 left-0 w-[35vw] h-[35vw] rounded-full opacity-[0.015]"
+          style={{ background: 'radial-gradient(circle, #e0c878 0%, transparent 70%)', filter: 'blur(100px)' }} />
+      </div>
+
       <ChatSidebar
         chats={chats}
         activeChatId={activeChatId}
@@ -365,109 +330,80 @@ export default function Chat() {
         onOpenSearch={() => setIsSearchMode(true)}
       />
 
-      <main className="flex-1 flex flex-col h-screen relative z-2">
-        <header className="h-[70px] flex items-center justify-between px-4 absolute top-0 left-0 right-0 z-10 pointer-events-none">
+      <main className="flex-1 flex flex-col h-screen relative z-1">
+        <header className="h-[64px] flex items-center justify-between px-6 absolute top-0 left-0 right-0 z-10 pointer-events-none">
           <div className="flex items-center gap-3 pointer-events-auto">
             {!showSidebar && (
-              <button className="bg-transparent border-none text-zinc-400 cursor-pointer p-2 rounded-lg hover:bg-white/10 hover:text-white transition-all flex items-center justify-center" onClick={() => setShowSidebar(true)} title="Mostrar panel lateral">
-                <PanelLeftOpen size={22} />
+              <button className="bg-transparent border-none text-text-muted cursor-pointer p-2 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all flex items-center justify-center"
+                onClick={() => setShowSidebar(true)} title="Mostrar panel lateral">
+                <PanelLeftOpen size={20} />
               </button>
             )}
-            <button className="hidden max-sm:flex bg-transparent border-none text-zinc-400 p-2 rounded-lg cursor-pointer hover:bg-white/10 hover:text-white transition-all items-center justify-center" onClick={() => setIsMobileOpen(true)}>
+            <button className="hidden max-sm:flex bg-transparent border-none text-text-muted p-2 rounded-lg cursor-pointer hover:bg-white/[0.06] hover:text-text-main transition-all items-center justify-center"
+              onClick={() => setIsMobileOpen(true)}>
               <Menu size={20} />
             </button>
             {!showSidebar && (
-              <div className="font-medium text-lg text-white/95">
-                <span>Sententia</span>
-              </div>
+              <div className="font-serif text-lg font-[400] text-text-main tracking-wide">Sententia</div>
             )}
           </div>
           <div className="pointer-events-auto" />
         </header>
 
         {isSearchMode ? (
-          <div className="flex flex-col flex-1 p-8 overflow-hidden max-w-[800px] mx-auto w-full">
+          <div className="flex flex-col flex-1 px-8 pt-24 pb-8 overflow-hidden max-w-[720px] mx-auto w-full">
             <div className="mb-8">
-              <h2 className="text-2xl font-semibold text-white/95 mb-4">Historial</h2>
-              <div className="relative flex items-center bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 transition-all focus-within:border-accent focus-within:bg-white/[0.08]">
-                <Search size={18} className="text-zinc-400 mr-3 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Buscar conversaciones..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-white/95 text-base outline-none placeholder:text-zinc-400"
-                  autoFocus
-                />
+              <h2 className="font-serif text-2xl font-[400] text-text-main mb-5 tracking-[-0.02em]">Historial</h2>
+              <div className="relative flex items-center glass-panel rounded-xl px-4 py-3 transition-all focus-within:border-accent/30 focus-within:bg-white/[0.06]">
+                <Search size={16} className="text-text-muted mr-3 shrink-0" />
+                <input type="text" placeholder="Buscar conversaciones..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent border-none text-text-main text-base outline-none font-[350] placeholder:text-text-muted" autoFocus />
+                <button className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all"
+                  onClick={() => { setIsSearchMode(false); setSearchQuery(''); }}><X size={16} /></button>
               </div>
-              <button className="action-btn ml-2" title="Cerrar" onClick={() => { setIsSearchMode(false); setSearchQuery(''); }}>
-                <X size={20} />
-              </button>
             </div>
             <div className="flex flex-col gap-2 overflow-y-auto pr-2 scrollbar-thin">
               {chats.filter(c => !c.isHidden && c.title.toLowerCase().includes(searchQuery.toLowerCase())).map(chat => (
-                <div
-                  key={chat.id}
-                  className="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/10 rounded-xl cursor-pointer transition-all hover:bg-white/[0.05] hover:border-white/15 hover:-translate-y-0.5"
-                  onClick={() => handleSelectChat(chat.id)}
-                >
-                  <div className="flex flex-col gap-1">
-                    <span className="text-white/95 font-medium">{chat.title}</span>
-                    <span className="text-zinc-500 text-xs">{new Date(chat.updatedAt).toLocaleDateString()}</span>
+                <div key={chat.id} className="flex items-center gap-4 p-4 glass-panel rounded-xl cursor-pointer transition-all hover:bg-glass-hover hover:-translate-y-0.5 animate-fade-in"
+                  onClick={() => handleSelectChat(chat.id)}>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-text-main font-[450] text-sm">{chat.title}</span>
+                    <span className="text-text-muted text-xs font-[350]">{new Date(chat.updatedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}
               {chats.filter(c => !c.isHidden && c.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
-                <div className="text-zinc-500 text-center py-8 italic">No se encontraron conversaciones.</div>
+                <div className="text-text-muted text-center py-8 italic font-[350] text-sm">No se encontraron conversaciones.</div>
               )}
             </div>
           </div>
         ) : isHiddenMode ? (
-          <div className="flex flex-col flex-1 p-8 overflow-hidden max-w-[800px] mx-auto w-full">
+          <div className="flex flex-col flex-1 px-8 pt-24 pb-8 overflow-hidden max-w-[720px] mx-auto w-full">
             <div className="mb-8">
-              <h2 className="text-2xl font-semibold text-white/95 mb-4">Ocultos</h2>
-              <div className="relative flex items-center bg-white/[0.05] border border-white/10 rounded-xl px-4 py-3 transition-all focus-within:border-accent focus-within:bg-white/[0.08]">
-                <Search size={18} className="text-zinc-400 mr-3 shrink-0" />
-                <input
-                  type="text"
-                  placeholder="Buscar en ocultos..."
-                  value={hiddenSearchQuery}
-                  onChange={(e) => setHiddenSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-white/95 text-base outline-none placeholder:text-zinc-400"
-                  autoFocus
-                />
+              <h2 className="font-serif text-2xl font-[400] text-text-main mb-5 tracking-[-0.02em]">Chats Ocultos</h2>
+              <div className="relative flex items-center glass-panel rounded-xl px-4 py-3 transition-all focus-within:border-accent/30 focus-within:bg-white/[0.06]">
+                <Search size={16} className="text-text-muted mr-3 shrink-0" />
+                <input type="text" placeholder="Buscar en ocultos..." value={hiddenSearchQuery} onChange={(e) => setHiddenSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent border-none text-text-main text-base outline-none font-[350] placeholder:text-text-muted" autoFocus />
+                <button className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all"
+                  onClick={() => { setIsHiddenMode(false); setHiddenSearchQuery(''); }}><X size={16} /></button>
               </div>
-              <button className="action-btn ml-2" title="Cerrar" onClick={() => { setIsHiddenMode(false); setHiddenSearchQuery(''); }}>
-                <X size={20} />
-              </button>
             </div>
             <div className="flex flex-col gap-2 overflow-y-auto pr-2 scrollbar-thin">
               {chats.filter(c => c.isHidden && c.title.toLowerCase().includes(hiddenSearchQuery.toLowerCase())).length === 0 ? (
-                <div className="text-zinc-500 text-center py-8 italic">
-                  {hiddenSearchQuery ? 'Sin coincidencias.' : 'No hay chats ocultos.'}
-                </div>
+                <div className="text-text-muted text-center py-8 italic font-[350] text-sm">{hiddenSearchQuery ? 'Sin coincidencias.' : 'No hay chats ocultos.'}</div>
               ) : (
                 chats.filter(c => c.isHidden && c.title.toLowerCase().includes(hiddenSearchQuery.toLowerCase())).map(chat => (
-                  <div key={chat.id} className="flex items-center gap-4 p-4 bg-white/[0.02] border border-white/10 rounded-xl">
-                    <div className="flex flex-col gap-1 flex-1">
-                      <span className="text-white/95 font-medium">{chat.title}</span>
-                      <span className="text-zinc-500 text-xs">{new Date(chat.updatedAt).toLocaleDateString()}</span>
+                  <div key={chat.id} className="flex items-center gap-4 p-4 glass-panel rounded-xl">
+                    <div className="flex flex-col gap-0.5 flex-1">
+                      <span className="text-text-main font-[450] text-sm">{chat.title}</span>
+                      <span className="text-text-muted text-xs font-[350]">{new Date(chat.updatedAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex gap-1.5 shrink-0 ml-3">
-                      <button
-                        className="px-3 py-1 rounded-lg bg-accent text-white text-xs font-medium cursor-pointer transition-all hover:shadow-[0_0_16px_rgba(212,175,55,0.4)]"
-                        title="Restaurar al historial"
-                        onClick={() => handleRestoreChat(chat.id)}
-                      >
-                        Mostrar
-                      </button>
-                      <button
-                        className="px-2 py-1 rounded-lg border border-red-500/25 text-rose-400 text-xs cursor-pointer transition-all hover:bg-red-500/15"
-                        title="Eliminar permanentemente"
-                        onClick={(e) => handleDeleteChat(e, chat.id)}
-                      >
-                        <FileText size={13} />
-                      </button>
+                      <button className="px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/20 text-accent text-xs font-[450] cursor-pointer transition-all hover:bg-accent/15 hover:border-accent/30"
+                        title="Restaurar al historial" onClick={() => handleRestoreChat(chat.id)}>Mostrar</button>
+                      <button className="px-2 py-1.5 rounded-lg border border-danger/20 text-danger/80 text-xs cursor-pointer transition-all hover:bg-danger/10"
+                        title="Eliminar permanentemente" onClick={(e) => handleDeleteChat(e, chat.id)}><FileText size={13} /></button>
                     </div>
                   </div>
                 ))
@@ -477,19 +413,38 @@ export default function Chat() {
         ) : (
           <>
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full w-full pb-[10vh]">
-                <h1 className="font-[Outfit] text-5xl md:text-7xl font-light tracking-tight mb-10 bg-gradient-to-r from-accent to-accent-light bg-clip-text text-transparent"
-                  style={{ textShadow: '0 4px 20px rgba(212, 175, 55, 0.2)' }}>
-                  Sententia
-                </h1>
-                <div className="w-full max-w-[800px] mx-auto">
-                  <ChatInput
-                    input={input}
-                    loading={loading}
-                    onSubmit={handleSubmit}
-                    onChange={setInput}
-                    footerText="Sententia es una AI basada en RAG y puede cometer errores."
-                  />
+              <div className="flex flex-col items-center justify-center h-full w-full pb-[6vh] px-5">
+                <div className="max-w-[800px] w-full flex flex-col items-center">
+                  <div className="mb-10 text-center">
+                    <h1 className="font-serif text-5xl md:text-6xl font-[400] tracking-[-0.03em] text-accent-gradient mb-3">
+                      Sententia
+                    </h1>
+                    <p className="text-text-sub text-sm font-[350]">Asistente Legal con Inteligencia Artificial</p>
+                  </div>
+
+                  <div className="w-full mb-8">
+                    <ChatInput
+                      input={input}
+                      loading={loading}
+                      onSubmit={handleSubmit}
+                      onChange={setInput}
+                      placeholder="Describa su caso o consulta legal..."
+                      footerText="Sententia es una IA basada en RAG y puede cometer errores."
+                    />
+                  </div>
+
+                  <div className="w-full max-w-[600px]">
+                    <p className="text-[0.6rem] uppercase tracking-[0.15em] text-text-muted font-[450] text-center mb-4">Consultas sugeridas</p>
+                    <div className="flex flex-col gap-2">
+                      {SUGGESTIONS.map((text, i) => (
+                        <button key={i}
+                          onClick={() => handleSuggestionClick(text)}
+                          className="group text-left px-5 py-3 rounded-xl bg-white/[0.02] border border-glass-border text-text-sub text-sm font-[350] cursor-pointer transition-all hover:bg-white/[0.04] hover:border-accent/20 hover:text-text-main">
+                          <span className="inline-block transition-transform group-hover:translate-x-0.5">{text}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -505,13 +460,13 @@ export default function Chat() {
                   onCancelDownload={handleCancelModelDownload}
                   copiedId={copiedId}
                 />
-                <footer className="px-4 pb-4 bg-transparent relative z-10 flex flex-col items-center">
+                <footer className="px-5 pb-4 bg-transparent relative z-10 flex flex-col items-center">
                   <ChatInput
                     input={input}
                     loading={loading}
                     onSubmit={handleSubmit}
                     onChange={setInput}
-                    footerText="Sententia es una AI basada en RAG y puede cometer errores."
+                    footerText="Sententia es una IA basada en RAG y puede cometer errores."
                   />
                 </footer>
               </>
@@ -521,23 +476,22 @@ export default function Chat() {
       </main>
 
       {renameModal && (
-        <div className="fixed inset-0 z-[2000] flex items-center bg-black/50 backdrop-blur-md" style={{ paddingLeft: showSidebar ? '330px' : '0' }} onClick={() => setRenameModal(null)}>
-          <div className="bg-black/[0.98] backdrop-blur-2xl border border-accent/25 rounded-2xl p-7 w-full max-w-[480px] mx-auto shadow-2xl animate-modal" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white/95 text-lg font-semibold mb-4">Renombrar conversación</h3>
-            <input
-              type="text"
-              className="w-full bg-white/[0.05] border border-white/10 rounded-lg px-4 py-3 text-white/95 text-base outline-none transition-all focus:border-accent focus:bg-white/[0.08]"
+        <div className="fixed inset-0 z-[2000] flex items-center bg-black/60 backdrop-blur-md"
+          style={{ paddingLeft: showSidebar ? '330px' : '0' }}
+          onClick={() => setRenameModal(null)}>
+          <div className="glass-panel-strong rounded-2xl p-7 w-full max-w-[440px] mx-auto shadow-2xl animate-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="font-serif text-lg font-[450] text-text-main mb-4">Renombrar conversación</h3>
+            <input type="text"
+              className="w-full bg-white/[0.03] border border-glass-border rounded-xl px-4 py-3 text-text-main text-base outline-none transition-all focus:border-accent/30 focus:bg-white/[0.05] font-[350]"
               value={renameBuffer}
               onChange={(e) => setRenameBuffer(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') confirmRename();
-                if (e.key === 'Escape') setRenameModal(null);
-              }}
-              autoFocus
-            />
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmRename(); if (e.key === 'Escape') setRenameModal(null); }}
+              autoFocus />
             <div className="flex gap-3 justify-end mt-5">
-              <button className="px-5 py-2.5 rounded-lg bg-white/[0.06] border border-white/10 text-zinc-400 text-sm cursor-pointer transition-all hover:bg-white/10 hover:text-white" onClick={() => setRenameModal(null)}>Cancelar</button>
-              <button className="px-5 py-2.5 rounded-lg bg-accent text-white text-sm font-medium cursor-pointer transition-all hover:shadow-[0_0_16px_rgba(212,175,55,0.4)]" onClick={confirmRename}>Guardar</button>
+              <button className="px-5 py-2.5 rounded-xl bg-white/[0.04] border border-glass-border text-text-sub text-sm cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main font-[350]"
+                onClick={() => setRenameModal(null)}>Cancelar</button>
+              <button className="px-5 py-2.5 rounded-xl bg-accent/10 border border-accent/20 text-accent text-sm font-[450] cursor-pointer transition-all hover:bg-accent/15 hover:border-accent/30"
+                onClick={confirmRename}>Guardar</button>
             </div>
           </div>
         </div>
@@ -549,19 +503,12 @@ export default function Chat() {
         isTraining={false}
         trainingStatus={null}
         onClose={() => setIsSettingsOpen(false)}
-        onSetHiddenMode={() => {
-          setIsSettingsOpen(false);
-          setIsHiddenMode(true);
-          setIsSearchMode(false);
-          setHiddenSearchQuery('');
-        }}
+        onSetHiddenMode={() => { setIsSettingsOpen(false); setIsHiddenMode(true); setIsSearchMode(false); setHiddenSearchQuery(''); }}
         onDeleteChat={handleDeleteChat}
         onRestoreChat={handleRestoreChat}
       />
 
-      {customAlert && (
-        <CustomAlert alert={customAlert} />
-      )}
+      {customAlert && <CustomAlert alert={customAlert} />}
     </div>
   );
 }
