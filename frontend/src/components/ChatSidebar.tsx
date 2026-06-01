@@ -158,25 +158,26 @@ export default function ChatSidebar({
         </>
       )}
 
-      {/* Desktop: width-transitioning wrapper with toggle pin */}
-      <div className={`hidden md:flex h-full transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] overflow-hidden shrink-0 relative ${
+      {/* Desktop: width-transitioning wrapper */}
+      <div className={`hidden md:flex h-full transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] overflow-hidden shrink-0 ${
         showSidebar ? 'w-[330px]' : 'w-0'
       }`}>
         <aside className="w-[330px] min-w-[330px] h-full flex flex-col border-r border-glass-border bg-glass backdrop-blur-2xl before:absolute before:inset-0 before:pointer-events-none before:bg-gradient-to-b before:from-accent/[0.02] before:to-transparent"
           aria-label="Panel de Historial">
           {sidebarContent}
         </aside>
-
-        {/* Toggle pin on the right edge */}
-        <button
-          onClick={onToggleSidebar}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 z-50 w-5 h-14 rounded-r-full glass-panel border border-l-0 border-glass-border flex items-center justify-center cursor-pointer text-text-muted hover:text-accent hover:border-accent/20 transition-all duration-300 group"
-          title={showSidebar ? 'Ocultar panel lateral' : 'Mostrar panel lateral'}>
-          <PanelLeftClose size={12} className={`transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
-            !showSidebar ? 'rotate-180' : ''
-          }`} />
-        </button>
       </div>
+
+      {/* Toggle pin — fixed so it's always clickable */}
+      <button
+        onClick={onToggleSidebar}
+        className="hidden md:flex fixed top-1/2 -translate-y-1/2 z-50 w-5 h-14 items-center justify-center cursor-pointer text-text-muted hover:text-accent hover:border-accent/20 transition-all duration-300 group rounded-r-full glass-panel border border-l-0 border-glass-border"
+        style={{ left: showSidebar ? '327px' : '0px' }}
+        title={showSidebar ? 'Ocultar panel lateral' : 'Mostrar panel lateral'}>
+        <PanelLeftClose size={12} className={`transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+          !showSidebar ? 'rotate-180' : ''
+        }`} />
+      </button>
 
       {/* Mobile overlay */}
       <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity md:hidden ${isMobileOpen ? '!opacity-100 !pointer-events-auto' : ''}`}
