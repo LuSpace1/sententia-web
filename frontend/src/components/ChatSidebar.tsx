@@ -11,7 +11,6 @@ import type { Chat } from '../types';
 interface Props {
   chats: Chat[];
   activeChatId: string;
-  showSidebar: boolean;
   isMobileOpen: boolean;
   onSelectChat: (id: string) => void;
   onNewChat: () => void;
@@ -19,16 +18,15 @@ interface Props {
   onDeleteChat: (e: React.MouseEvent, id: string) => void;
   onHideChat: (e: React.MouseEvent, id: string) => void;
   onRenameChat: (e: React.MouseEvent, chat: Chat) => void;
-  onToggleSidebar: () => void;
   onCloseMobile: () => void;
   onOpenSettings: () => void;
   onOpenSearch: () => void;
 }
 
 export default function ChatSidebar({
-  chats, activeChatId, showSidebar, isMobileOpen,
+  chats, activeChatId, isMobileOpen,
   onSelectChat, onNewChat, onTogglePin, onDeleteChat, onHideChat,
-  onRenameChat, onToggleSidebar, onCloseMobile, onOpenSettings, onOpenSearch,
+  onRenameChat, onCloseMobile, onOpenSettings, onOpenSearch,
 }: Props) {
   const { user, handleLogout } = useAuth();
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -151,27 +149,18 @@ export default function ChatSidebar({
         </>
       )}
 
-      <div className={`hidden md:flex h-full transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] overflow-hidden shrink-0 ${
-        showSidebar ? 'w-[280px]' : 'w-0'
-      }`}>
-        <aside className="w-[280px] min-w-[280px] h-full flex flex-col border-r border-white/[0.03] bg-surface"
-          aria-label="Panel de Historial">
-          {sidebarContent}
-        </aside>
-      </div>
+      {/* Desktop */}
+      <aside className="hidden md:flex w-[280px] min-w-[280px] h-full flex-col border-r border-white/[0.03] bg-surface"
+        aria-label="Panel de Historial">
+        {sidebarContent}
+      </aside>
 
-      <button
-        onClick={onToggleSidebar}
-        className="hidden md:flex fixed top-1/2 -translate-y-1/2 z-50 w-[5px] h-10 items-center justify-center cursor-pointer text-text-muted/30 hover:text-accent transition-all duration-300 group"
-        style={{ left: showSidebar ? '277px' : '0px' }}
-        title={showSidebar ? 'Ocultar panel' : 'Mostrar panel'}>
-        <div className="w-full h-full rounded-r-sm transition-all duration-300 group-hover:bg-accent/10" />
-      </button>
-
+      {/* Mobile overlay */}
       <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity md:hidden ${isMobileOpen ? '!opacity-100 !pointer-events-auto' : ''}`}
         onClick={onCloseMobile} aria-hidden="true" />
 
-      <aside className={`md:hidden absolute left-0 top-0 h-full w-[280px] z-[200] bg-surface border-r border-white/[0.03] transition-transform duration-300 ${
+      {/* Mobile sidebar */}
+      <aside className={`md:hidden fixed left-0 top-0 h-full w-[280px] z-[200] bg-surface border-r border-white/[0.03] transition-transform duration-300 ${
         isMobileOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
         aria-label="Panel de Historial">
