@@ -1,34 +1,40 @@
 # Sententia
 
-Un asistente legal que corre completamente local en tu máquina. Habla de leyes chilenas, no alucina (bueno, intenta no hacerlo), y lo mejor de todo: no pides permiso a nadie ni pagas suscripción.
+**Democratizando el acceso al conocimiento legal en Chile.**
 
-Usa RAG — Retrieval Augmented Generation — para responder preguntas sobre legislación chilena basándose en documentos reales que están indexados en una base de datos vectorial. Todo corre en tu equipo vía Ollama.
+Sententia es un asistente legal basado en inteligencia artificial, diseñado como MVP (Producto Mínimo Viable) para demostrar la integración de **Generación Aumentada por Recuperación (RAG)** utilizando modelos de lenguaje open source ejecutados localmente vía Ollama, sin depender de servicios externos ni suscripciones.
 
-## Cómo funciona en tres pasos
+Está orientado a estudiantes, personas naturales, emprendedores y PYMES que necesitan resolver dudas legales pero no pueden acceder a asesorías jurídicas costosas o suscripciones premium de IA.
 
-1. **Indexación**: Los PDFs de la carpeta `data/` se dividen en fragmentos, se convierten a vectores con un modelo de embeddings, y se guardan en ChromaDB.
-2. **Búsqueda**: Cuando preguntas algo, el sistema busca los fragmentos más relevantes dentro de la base vectorial usando MMR (Maximum Marginal Relevance). Si ya has hecho preguntas antes, reformula tu consulta usando el historial para mantener contexto.
-3. **Respuesta**: El fragmento de ley encontrado se envía junto con tu pregunta a un modelo LLM local (DeepSeek R1 8b por defecto). La IA genera su respuesta basada estrictamente en ese contexto, con citas a los artículos correspondientes.
+## Stack tecnológico
 
-> También detecta saludos y los responde sin molestar al LLM. Le dices "hola" y te responde al toque sin gastar recursos en buscar leyes.
+**Backend**: Django 5.2 + Django REST Framework 3.16, ChromaDB (base de datos vectorial), LangChain (langchain-ollama, langchain-chroma, langchain-community), PyPDF para carga de documentos.
 
-## Stack técnico
+**Frontend**: React 19 con TypeScript 6, Vite 7, Tailwind CSS v4. Autenticación mediante React Context API. Comunicación HTTP con axios. Renderizado Markdown con react-markdown y remark-gfm.
 
-**Backend**: Django 5.2 + DRF, ChromaDB (base vectorial), LangChain (para el pipeline RAG, específicamente langchain-ollama, langchain-chroma y langchain-community), PyPDF para leer PDFs.
+**Modelos locales**: Todo el procesamiento se ejecuta a través de Ollama. Los modelos configurados por defecto son:
+- `deepseek-r1:8b` — modelo de lenguaje para generar respuestas basadas en contexto legal
+- `mxbai-embed-large` — modelo de embeddings para búsqueda semántica en la base vectorial
 
-**Frontend**: React 19 con TypeScript 6, Vite 7, Tailwind CSS v4. Los componentes de UI son props-driven, el estado de autenticación vive en un contexto React. Usa axios para las llamadas HTTP y react-markdown para renderizar las respuestas legales.
+Ambos modelos pueden reemplazarse modificando las variables de entorno correspondientes.
 
-**Modelos locales**: Todo pasa por Ollama. El proyecto viene configurado con:
-- `deepseek-r1:8b` para generar respuestas (puedes cambiarlo)
-- `mxbai-embed-large` para los embeddings de búsqueda semántica (puedes cambiarlo)
+## Arquitectura RAG
 
-Ambos modelos son libres y optimizados para correr en hardware de consumo. DeepSeek R1 destaca por su capacidad de razonamiento, ideal para interpretar textos legales complejos. mxbai-embed-large es un modelo de embeddings que sorprende para ser tan liviano.
+El sistema sigue el paradigma RAG en tres etapas:
+
+1. **Indexación**: Los documentos PDF de la carpeta `data/` se dividen en fragmentos (chunks) utilizando `RecursiveCharacterTextSplitter` con separadores adaptados a documentos legales (ARTÍCULO, TÍTULO, LIBRO). Cada fragmento se convierte en un vector mediante el modelo de embeddings y se almacena en ChromaDB.
+
+2. **Recuperación**: Al recibir una consulta, el sistema busca los fragmentos más relevantes usando MMR (Maximum Marginal Relevance) con k=8 documentos y fetch_k=20. Si existe historial de conversación, la pregunta se reformula primero para mantener contexto sin depender de mensajes anteriores.
+
+3. **Generación**: El contexto recuperado se envía junto con la pregunta del usuario al modelo LLM local. La respuesta se redacta estrictamente basada en ese contexto, con citas a los artículos correspondientes cuando están disponibles en los fragmentos recuperados.
+
+El sistema incluye además un clasificador de consultas que detecta saludos, agradecimientos y despedidas mediante expresiones regulares, respondiendo de forma adecuada sin invocar al LLM ni a la base vectorial, reduciendo latencia y uso innecesario de recursos.
 
 ## Requisitos previos
 
-- Python 3.12+ (gestionado con `uv`)
+- Python 3.12+ gestionado con `uv`
 - Node.js 20+
-- [Ollama](https://ollama.com/) instalado y corriendo
+- [Ollama](https://ollama.com/) instalado y en ejecución
 
 ```bash
 ollama pull deepseek-r1:8b
@@ -44,105 +50,115 @@ cd sententia-web
 # Backend
 uv sync
 cp backend/.env.example backend/.env
+# Editar backend/.env con SECRET_KEY propio (opcional)
 uv run python manage.py migrate
 uv run python manage.py runserver
 
-# Frontend (otra terminal)
+# Frontend (nueva terminal)
 cd frontend
 npm install
 cp .env.example .env
 npm run dev
 ```
 
-Abre `http://localhost:5173`. Regístrate o entra como invitado.
+> `uv sync` se ejecuta desde la raíz del proyecto, donde el archivo `.python-version` define la versión de Python y `pyproject.toml` configura el workspace con el miembro `backend/`.
 
-> `uv sync` usa el archivo `.python-version` en la raíz para crear el entorno virtual con Python 3.12. Instala todo en un solo comando porque el proyecto está configurado como workspace de uv con un solo miembro: `backend/`.
+Abrir `http://localhost:5173` en el navegador. Registrarse o acceder como invitado.
 
 ## Variables de entorno
 
 ### Backend (`backend/.env`)
 
-| Variable | Por defecto | Para qué sirve |
+| Variable | Valor por defecto | Descripción |
 |---|---|---|
-| `SECRET_KEY` | — | Clave de Django. Cámbiala si despliegas. |
-| `DEBUG` | `True` | Modo desarrollo. |
-| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Hosts donde servís Django. |
-| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Origen del frontend. |
-| `OLLAMA_BASE_URL` | `http://localhost:11434` | Dónde corre Ollama. |
-| `OLLAMA_LLM_MODEL` | `deepseek-r1:8b` | Modelo que genera las respuestas. |
-| `OLLAMA_EMBED_MODEL` | `mxbai-embed-large` | Modelo que genera los vectores. |
-| `RAG_BOOTSTRAP_DEFAULT_DATA` | `True` | Indexa los PDFs de `data/` al arrancar si la base está vacía. |
+| `SECRET_KEY` | — | Clave secreta de Django |
+| `DEBUG` | `True` | Modo depuración |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Hosts permitidos |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173` | Origen del frontend |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Dirección del servidor Ollama |
+| `OLLAMA_LLM_MODEL` | `deepseek-r1:8b` | Modelo para generar respuestas |
+| `OLLAMA_EMBED_MODEL` | `mxbai-embed-large` | Modelo para embeddings |
+| `RAG_BOOTSTRAP_DEFAULT_DATA` | `True` | Indexar PDFs automáticamente al iniciar |
 
 ### Frontend (`frontend/.env`)
 
-| Variable | Por defecto | Para qué sirve |
+| Variable | Valor por defecto | Descripción |
 |---|---|---|
-| `VITE_API_BASE_URL` | `http://localhost:8000` | URL del backend en desarrollo. |
+| `VITE_API_BASE_URL` | `http://localhost:8000` | URL del backend en desarrollo |
 
-## Endpoints de la API
+## API REST
 
-| Ruta | Método | Autenticación | Qué hace |
+| Ruta | Método | Autenticación | Descripción |
 |---|---|---|---|
-| `/api/chat/` | POST | Token | Envía una consulta legal, recibe respuesta con citas |
-| `/api/train/` | POST | Token | Sube un PDF/TXT/MD y lo indexa en ChromaDB |
-| `/api/models/pull/` | POST | Token | Descarga un modelo de Ollama (streaming) |
-| `/api/register/` | POST | Abierto | Crea un usuario nuevo |
-| `/api/login/` | POST | Abierto | Inicia sesión, devuelve token |
-| `/api/demo-login/` | POST | Abierto | Acceso rápido como invitado |
+| `/api/chat/` | POST | Token requerido | Envía consulta legal, recibe respuesta con citas |
+| `/api/train/` | POST | Token requerido | Sube e indexa documento PDF/TXT/MD |
+| `/api/models/pull/` | POST | Token requerido | Descarga modelo de Ollama (streaming NDJSON) |
+| `/api/register/` | POST | Sin autenticación | Crea usuario nuevo |
+| `/api/login/` | POST | Sin autenticación | Inicia sesión, devuelve token |
+| `/api/demo-login/` | POST | Sin autenticación | Acceso como invitado |
 
 ## Documentos legales incluidos
 
-Once PDFs con legislación chilena en `data/`:
+La carpeta `data/` contiene once PDFs con legislación chilena:
 
-Constitución de Chile, Código Civil, Código Penal, Código Procesal Penal, Código del Trabajo, Código de Comercio, Código Tributario, Código Sanitario, Código de Minería, Código de Procedimiento Civil, Código Orgánico de Tribunales.
+- Constitución de Chile
+- Código Civil
+- Código Penal
+- Código Procesal Penal
+- Código del Trabajo
+- Código de Comercio
+- Código Tributario
+- Código Sanitario
+- Código de Minería
+- Código de Procedimiento Civil
+- Código Orgánico de Tribunales
 
-Se indexan solos la primera vez que inicias el backend. Si querés agregar más documentos, podés:
+Se indexan automáticamente la primera vez que se inicia el backend. Para agregar documentos adicionales existen dos formas:
 
-- Desde la UI: botón de ajustes > pestaña "Entrenar" > seleccionar archivo
-- Desde la shell: `uv run python manage.py shell` y llamar a `rag.ingest_file("ruta/al/documento.pdf")`
+1. Desde la interfaz web: menú de ajustes > pestaña "Entrenar" > seleccionar archivo.
+2. Desde la shell de Django:
+   ```bash
+   uv run python manage.py shell
+   >>> from core.rag_logic import LegalRAG
+   >>> rag = LegalRAG()
+   >>> rag.ingest_file("ruta/al/documento.pdf")
+   ```
 
-## Cómo está organizado el frontend
+## Estructura del frontend
 
 ```
 src/
-├── main.tsx                          # Entrada
-├── App.tsx                           # Router + AuthProvider
-├── types/index.ts                    # Interfaces (Message, Chat, User, etc.)
+├── main.tsx                            # Punto de entrada
+├── App.tsx                             # Router y AuthProvider
+├── utils.ts                            # Función generateId()
+├── types/index.ts                      # Interfaces compartidas
 ├── context/
-│   ├── AuthContextData.ts            # Definición del contexto
-│   ├── AuthContext.tsx               # Provider con localStorage
-│   └── useAuth.ts                    # Hook de acceso
-├── services/api.ts                   # Cliente HTTP con axios
+│   ├── AuthContextData.ts              # Definición del contexto
+│   ├── AuthContext.tsx                 # Provider con persistencia en localStorage
+│   └── useAuth.ts                      # Hook personalizado
+├── services/api.ts                     # Cliente HTTP con tipado genérico
 ├── pages/
-│   ├── Chat.tsx                      # El chat en sí (567 líneas, la más grande)
-│   ├── LandingPage.tsx               # Página principal
-│   ├── Login.tsx                     # Inicio de sesión
-│   └── Register.tsx                  # Registro
+│   ├── Chat.tsx                        # Página principal del chat
+│   ├── LandingPage.tsx                 # Página de aterrizaje
+│   ├── Login.tsx                       # Inicio de sesión
+│   └── Register.tsx                    # Registro de usuario
 ├── components/
-│   ├── ChatSidebar.tsx               # Sidebar con historial y búsqueda
-│   ├── ChatMessages.tsx              # Renderizado de mensajes con Markdown
-│   ├── ChatInput.tsx                 # Input con auto-resize y atajos
-│   ├── SettingsModal.tsx             # Subir documentos, configuración
-│   ├── CustomAlert.tsx               # Diálogo de confirmación
-│   └── ModelDownloadBanner.tsx       # Progreso de descarga de modelos
-└── index.css                         # Tailwind v4 con tema Gold Glassmorphism
+│   ├── ChatSidebar.tsx                 # Navegación lateral con historial
+│   ├── ChatMessages.tsx                # Renderizado de mensajes en Markdown
+│   ├── ChatInput.tsx                   # Entrada de texto con auto-resize
+│   ├── SettingsModal.tsx               # Configuración y entrenamiento
+│   ├── CustomAlert.tsx                 # Diálogo de confirmación reutilizable
+│   └── ModelDownloadBanner.tsx         # Progreso de descarga de modelos
+└── index.css                           # Tailwind CSS v4 con tema Gold Glassmorphism
 ```
 
-## Para qué (no) sirve
+## Limitaciones
 
-**Sirve para**: estudiantes de derecho que quieren explorar conceptos, emprendedores con dudas legales puntuales, personas que prefieren no subir información sensible a la nube.
+- El rendimiento depende del hardware local. El modelo deepseek-r1:8b requiere aproximadamente 8 GB de RAM.
+- La base de conocimiento inicial abarca once documentos, lo que significa que áreas completas del derecho chileno no están cubiertas.
+- El sistema de reformulación de preguntas utiliza el mismo LLM, incrementando la latencia en consultas con historial.
+- Este proyecto no reemplaza la asesoría legal profesional. Las respuestas se generan en base al contexto recuperado y pueden contener errores si el contexto es insuficiente o impreciso.
 
-**No sirve para**: reemplazar un abogado. Esto es un experimento, un MVP. Puede equivocarse, alucinar o no encontrar la ley exacta. Las respuestas se basan en el contexto que se recuperó, y si el contexto no es preciso, la respuesta va a fallar. Está pensado como herramienta de apoyo, no como dictamen legal.
+## Diseño visual
 
-## Limitaciones conocidas
-
-- Los modelos corren local, así que dependen de tu hardware. DeepSeek R1 8b pide unos 8 GB de RAM como mínimo.
-- La base de conocimiento inicial son solo 11 PDFs. Hay áreas enteras del derecho chileno que no están cubiertas.
-- El sistema de reformulación de preguntas usa el mismo LLM, lo que suma latencia en consultas con historial.
-- La interfaz no está optimizada para móviles más allá de lo básico (el sidebar se oculta).
-
-## Diseño
-
-Tema Gold Glassmorphism: fondos oscuros (#0a0a0f), dorados (#c3a564), paneles con backdrop blur, tipografía Outfit para títulos e Inter para texto. Tailwind v4 con tokens personalizados definidos en `index.css`.
-
-El estilo visual busca parecer más una herramienta profesional que un chatbot genérico. Las animaciones son sutiles (entrada de mensajes, apertura de modales) y la scrollbar está personalizada.
+El tema Gold Glassmorphism utiliza fondos oscuros (#0a0a0f), acentos dorados (#c3a564) y paneles con efecto blur. La tipografía emplea Outfit para títulos e Inter para texto, cargadas desde Google Fonts. Las animaciones son sutiles y la interfaz es responsiva con sidebar colapsable en dispositivos móviles.
