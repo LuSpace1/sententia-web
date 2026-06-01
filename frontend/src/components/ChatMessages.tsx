@@ -46,56 +46,57 @@ export default function ChatMessages({
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto px-5 pt-[calc(64px+0.5rem)] pb-5 scroll-smooth flex flex-col items-center scrollbar-thin"
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 pt-[calc(56px+0.75rem)] pb-5 scroll-smooth flex flex-col items-center scrollbar-thin"
         ref={messagesContainerRef}>
-        <div className="w-full max-w-[800px] flex flex-col gap-5">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`flex w-full animate-message ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`relative max-w-[82%] leading-relaxed ${
+        <div className="w-full max-w-[720px] flex flex-col gap-5">
+          {messages.map((msg, idx) => (
+            <div key={msg.id} className={`flex w-full animate-message ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              style={{ animationDelay: `${idx * 0.05}s` }}>
+              <div className={`relative max-w-[78%] leading-relaxed group ${
                 msg.role === 'assistant'
-                  ? 'glass-panel rounded-2xl rounded-bl-lg p-5'
-                  : 'bg-accent/8 border border-accent/20 rounded-2xl rounded-br-lg p-5'
+                  ? 'bg-white/[0.02] border border-white/[0.04] rounded-2xl rounded-bl-md p-5'
+                  : 'bg-accent/8 rounded-2xl rounded-br-md px-5 py-4'
               }`}>
                 {msg.role === 'assistant' && (
                   <button
-                    className={`absolute top-2.5 right-2.5 z-2 bg-black/40 border border-glass-border rounded-lg p-1.5 text-text-muted cursor-pointer transition-all opacity-0 hover:opacity-100 hover:bg-white/[0.1] hover:text-text-main ${
-                      copiedId === msg.id ? '!opacity-100 !bg-accent/15 !text-accent !border-accent/20' : ''
+                    className={`absolute top-3 right-3 z-2 bg-[#0a0a0e] border border-white/[0.04] rounded-lg p-1.5 text-text-muted/50 cursor-pointer transition-all duration-200 opacity-0 group-hover:opacity-100 hover:bg-white/[0.06] hover:text-text-main ${
+                      copiedId === msg.id ? '!opacity-100 !bg-accent/12 !text-accent !border-accent/18' : ''
                     }`}
                     onClick={() => onCopyMessage(msg.content, msg.id)}
-                    title="Copiar texto">
-                    {copiedId === msg.id ? <Check size={13} /> : <Copy size={13} />}
+                    title="Copiar">
+                    {copiedId === msg.id ? <Check size={11} /> : <Copy size={11} />}
                   </button>
                 )}
-                <div className="text-sm md:text-[0.9rem] font-[350] leading-relaxed prose-legal">
+                <div className={`text-sm md:text-[0.9rem] font-[350] leading-[1.75] prose-legal ${msg.role === 'user' ? 'text-text-main' : ''}`}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                 </div>
                 {msg.modelPrompt && (
-                  <div className="flex gap-3 mt-4 flex-wrap">
+                  <div className="flex gap-2.5 mt-4 flex-wrap">
                     <button type="button"
-                      className="rounded-full px-4 py-2.5 text-sm font-[450] cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-accent/10 border border-accent/20 text-accent hover:bg-accent/15 hover:border-accent/30"
+                      className="rounded-lg px-3.5 py-2 text-[11px] font-[450] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
                       onClick={() => onDownloadModel(msg.modelPrompt!.model, msg.modelPrompt!.purpose)}
                       disabled={loading || isAnyModelDownloading}>Sí, descargar modelo</button>
                     <button type="button"
-                      className="rounded-full px-4 py-2.5 text-sm font-[350] cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed glass-panel-light text-text-sub hover:text-text-main"
+                      className="rounded-lg px-3.5 py-2 text-[11px] font-[400] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-text-muted hover:text-text-sub hover:bg-white/[0.03] border-none bg-transparent"
                       onClick={() => onSkipDownload(msg.modelPrompt!.model)}
                       disabled={loading || isAnyModelDownloading}>No ahora</button>
                   </div>
                 )}
                 {msg.modelPrompts && msg.modelPrompts.length > 0 && (
-                  <div className="flex gap-3 mt-4 flex-wrap">
+                  <div className="flex gap-2.5 mt-4 flex-wrap">
                     <button type="button"
-                      className="rounded-full px-4 py-2.5 text-sm font-[450] cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-accent/10 border border-accent/20 text-accent hover:bg-accent/15 hover:border-accent/30"
+                      className="rounded-lg px-3.5 py-2 text-[11px] font-[450] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
                       onClick={() => onDownloadMultiple(msg.modelPrompts!)}
                       disabled={loading || isAnyModelDownloading}>Sí, descargar {msg.modelPrompts.length} modelos</button>
                     <button type="button"
-                      className="rounded-full px-4 py-2.5 text-sm font-[350] cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed glass-panel-light text-text-sub hover:text-text-main"
+                      className="rounded-lg px-3.5 py-2 text-[11px] font-[400] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-text-muted hover:text-text-sub hover:bg-white/[0.03] border-none bg-transparent"
                       onClick={() => onSkipDownload(msg.modelPrompts!.map(m => m.model).join(' y '))}
                       disabled={loading || isAnyModelDownloading}>No ahora</button>
-                    <div className="w-full mt-3 pt-3 border-t border-glass-border flex items-center gap-2 flex-wrap">
-                      <span className="text-xs text-text-muted font-[350]">O solo uno:</span>
+                    <div className="w-full mt-2 pt-2 border-t border-white/[0.03] flex items-center gap-2 flex-wrap">
+                      <span className="text-[10px] text-text-muted/50 font-[350]">O solo uno:</span>
                       {msg.modelPrompts.map(m => (
                         <button key={m.model} type="button"
-                          className="bg-none border border-glass-border text-text-muted text-xs cursor-pointer px-2 py-1 rounded-full transition-all hover:text-text-sub hover:border-white/15 hover:bg-white/[0.03] disabled:opacity-40 disabled:cursor-not-allowed"
+                          className="bg-transparent border border-white/[0.04] text-text-muted/60 text-[10px] cursor-pointer px-2 py-1 rounded-md transition-all hover:text-text-sub hover:border-white/10 hover:bg-white/[0.02] disabled:opacity-30 disabled:cursor-not-allowed"
                           onClick={() => onDownloadModel(m.model, m.purpose)}
                           disabled={loading || !!downloadStates[m.model]} title={m.purpose}>{m.model}</button>
                       ))}
@@ -107,24 +108,24 @@ export default function ChatMessages({
           ))}
 
           {loading && (
-            <div className="flex w-full animate-message">
-              <div className="flex items-center gap-4 px-4 py-2.5 text-accent/60 text-sm font-[350] glass-panel rounded-2xl">
+            <div className="flex w-full">
+              <div className="flex items-center gap-3 px-4 py-3 text-accent/40 text-xs font-[350]">
                 <div className="flex gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent/50 animate-bounce" style={{ animationDelay: '0s', animationDuration: '1.2s' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent/50 animate-bounce" style={{ animationDelay: '0.2s', animationDuration: '1.2s' }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent/50 animate-bounce" style={{ animationDelay: '0.4s', animationDuration: '1.2s' }} />
+                  <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0s', animationDuration: '1.5s' }} />
+                  <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '1.5s' }} />
+                  <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.6s', animationDuration: '1.5s' }} />
                 </div>
-                <span>Analizando jurisprudencia…</span>
+                <span className="tracking-[0.02em]">Analizando jurisprudencia</span>
               </div>
             </div>
           )}
 
           <ModelDownloadBanner downloadStates={downloadStates} onCancel={onCancelDownload} />
-          <div ref={messagesEndRef} style={{ height: '4px' }} />
+          <div ref={messagesEndRef} />
         </div>
       </div>
       {showScrollBtn && (
-        <button className="fixed bottom-28 right-8 z-20 w-10 h-10 rounded-full glass-panel border border-glass-border text-text-muted backdrop-blur-md cursor-pointer transition-all hover:bg-glass-hover hover:text-text-main flex items-center justify-center"
+        <button className="fixed bottom-28 right-6 z-20 w-8 h-8 rounded-xl bg-white/[0.02] border border-white/[0.04] text-text-muted/50 cursor-pointer transition-all hover:bg-white/[0.04] hover:text-text-main flex items-center justify-center text-xs"
           onClick={scrollToBottom} title="Ir al final">↓</button>
       )}
     </>
