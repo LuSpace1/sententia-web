@@ -57,21 +57,9 @@ export default function LandingPage() {
   return (
     <div className="relative min-h-screen bg-surface text-text-main overflow-x-hidden">
 
-      {/* Ambient glow backgrounds */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[5%] left-[5%] w-[40vw] h-[40vw] rounded-full opacity-[0.04]"
-          style={{
-            background: 'radial-gradient(circle, #c9a84c 0%, transparent 70%)',
-            filter: 'blur(120px)',
-            animation: 'glowPulse 12s ease-in-out infinite alternate'
-          }} />
-        <div className="absolute bottom-[15%] right-[5%] w-[50vw] h-[50vw] rounded-full opacity-[0.03]"
-          style={{
-            background: 'radial-gradient(circle, #e0c878 0%, transparent 70%)',
-            filter: 'blur(120px)',
-            animation: 'glowPulse 12s ease-in-out infinite alternate',
-            animationDelay: '-6s'
-          }} />
+        <div className="bg-glow-gold absolute top-[5%] left-[5%] w-[40vw] h-[40vw]" />
+        <div className="bg-glow-gold-right absolute bottom-[15%] right-[5%] w-[50vw] h-[50vw]" />
       </div>
 
       {/* Navigation */}
@@ -79,15 +67,15 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-8 flex items-center justify-between h-[68px]">
           <Link to="/" className="flex items-center gap-3 text-white no-underline">
             <Scale size={22} className="text-accent" />
-            <span className="font-serif text-xl tracking-wide font-[450] text-white/93">Sententia</span>
+            <span className="font-serif text-xl tracking-wide font-emphasized text-white/93">Sententia</span>
           </Link>
           <div className="flex items-center gap-4">
             <Link to="/login"
-              className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-sm font-[450] text-text-sub hover:text-text-main transition-all">
+              className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-sm font-emphasized text-text-sub hover:text-text-main transition-all">
               Iniciar Sesión
             </Link>
             <Link to="/register"
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-[450] hover:bg-accent/15 hover:border-accent/30 transition-all">
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-emphasized hover:bg-accent/15 hover:border-accent/30 transition-all">
               Comenzar Gratis
             </Link>
           </div>
@@ -95,37 +83,33 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="relative z-10 min-h-[88vh] flex items-center"
-        style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(7,7,10,0.92) 0%, rgba(7,7,10,0.85) 100%), url(${heroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}>
+      <section className="bg-hero-vertical relative z-10 min-h-[88vh] flex items-center"
+        style={{ backgroundImage: `linear-gradient(to bottom, rgba(7,7,10,0.92) 0%, rgba(7,7,10,0.85) 100%), url(${heroBg})` }}>
         <div className="max-w-7xl mx-auto px-8 w-full pt-16 pb-24">
           <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/20 bg-accent-muted text-accent text-[0.7rem] font-[450] tracking-[0.12em] uppercase mb-10 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/20 bg-accent-muted text-accent text-[0.7rem] font-emphasized tracking-[0.12em] uppercase mb-10 animate-fade-in">
               <Shield size={12} />
               RAG Legal · Open Source · 100% Local
             </div>
 
-            <h1 className="font-serif text-[clamp(3rem,5.5vw,5rem)] font-[400] leading-[1.08] tracking-[-0.03em] mb-6 animate-slide-up">
+            <h1 className="font-serif text-[clamp(3rem,5.5vw,5rem)] font-normal leading-[1.08] tracking-[-0.03em] mb-6 animate-slide-up">
               Tu Asistente Legal
               <br />
               <span className="text-accent-gradient">Inteligente y Privado</span>
             </h1>
 
-            <p className="text-lg md:text-xl text-text-sub font-[350] leading-relaxed max-w-[600px] mx-auto mb-12 animate-slide-up stagger-2">
+            <p className="text-lg md:text-xl text-text-sub font-subtle leading-relaxed max-w-[600px] mx-auto mb-12 animate-slide-up stagger-2">
               Consulta la legislación chilena y redacta documentos sin comprometer tus datos. Un motor RAG offline para garantizar la confidencialidad absoluta.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-24 animate-slide-up stagger-3">
               <Link to="/register"
-                className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full glass-panel-strong border border-accent/20 text-accent font-[450] hover:bg-accent/10 hover:border-accent/30 transition-all text-base">
+                className="group inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-full glass-panel-strong border border-accent/20 text-accent font-emphasized hover:bg-accent/10 hover:border-accent/30 transition-all text-base">
                 Iniciar Consulta Legal
                 <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </Link>
               <button onClick={handleDemoClick}
-                  className="px-8 py-3.5 rounded-full bg-white/[0.03] border border-glass-border-light text-text-sub font-[400] cursor-pointer hover:text-accent hover:border-accent/25 hover:bg-accent/[0.04] hover:-translate-y-0.5 transition-all text-base">
+                  className="px-8 py-3.5 rounded-full bg-white/[0.03] border border-glass-border-light text-text-sub font-normal cursor-pointer hover:text-accent hover:border-accent/25 hover:bg-accent/[0.04] hover:-translate-y-0.5 transition-all text-base">
                   Probar el Sistema
                 </button>
             </div>
@@ -163,10 +147,10 @@ export default function LandingPage() {
       {/* Tech Stack */}
       <section className="relative z-10 border-t border-b border-glass-border bg-white/[0.01] py-14">
         <div className="max-w-7xl mx-auto px-8 text-center">
-          <p className="text-text-muted text-[0.6rem] font-[450] tracking-[0.2em] uppercase mb-10">Stack Tecnológico</p>
+          <p className="text-text-muted text-[0.6rem] font-emphasized tracking-[0.2em] uppercase mb-10">Stack Tecnológico</p>
           <div className="flex justify-center items-center gap-10 md:gap-20 flex-wrap opacity-40 hover:opacity-70 transition-all">
             {['LangChain', 'Ollama', 'ChromaDB', 'DeepSeek-R1'].map((tech) => (
-              <span key={tech} className="font-sans text-sm font-[400] tracking-wide text-text-sub">
+              <span key={tech} className="font-sans text-sm font-normal tracking-wide text-text-sub">
                 {tech}
               </span>
             ))}
@@ -178,10 +162,10 @@ export default function LandingPage() {
       <section className="relative z-10 py-28">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-20">
-            <h2 className="font-serif text-[clamp(2.2rem,3.5vw,3.2rem)] font-[400] tracking-[-0.02em] mb-5">
+            <h2 className="font-serif text-[clamp(2.2rem,3.5vw,3.2rem)] font-normal tracking-[-0.02em] mb-5">
               Capacidades <span className="text-accent-gradient">Avanzadas</span>
             </h2>
-            <p className="text-text-sub text-base max-w-[540px] mx-auto font-[350]">
+            <p className="text-text-sub text-base max-w-[540px] mx-auto font-subtle">
               Diseñado para proteger la confidencialidad y revolucionar el acceso al texto normativo.
             </p>
           </div>
@@ -194,8 +178,8 @@ export default function LandingPage() {
                 <div className="w-12 h-12 rounded-xl bg-accent-muted border border-accent/15 flex items-center justify-center mb-6 text-accent transition-all duration-300 group-hover:bg-accent/15 group-hover:border-accent/30">
                   {feature.icon}
                 </div>
-                <h3 className="font-serif text-xl font-[450] text-text-main mb-3">{feature.title}</h3>
-                <p className="text-text-sub text-sm font-[350] leading-relaxed">{feature.desc}</p>
+                <h3 className="font-serif text-xl font-emphasized text-text-main mb-3">{feature.title}</h3>
+                <p className="text-text-sub text-sm font-subtle leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -207,10 +191,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="font-serif text-[clamp(2rem,3vw,2.8rem)] font-[400] tracking-[-0.02em] mb-4">
+              <h2 className="font-serif text-[clamp(2rem,3vw,2.8rem)] font-normal tracking-[-0.02em] mb-4">
                 Autónomo. Privado. <span className="text-accent-gradient">Eficaz.</span>
               </h2>
-              <p className="text-text-sub text-base font-[350] mb-10 max-w-[480px]">
+              <p className="text-text-sub text-base font-subtle mb-10 max-w-[480px]">
                 Flujo optimizado para que te concentres en la estrategia legal mientras la IA extrae los datos.
               </p>
               <div className="flex flex-col gap-8">
@@ -223,8 +207,8 @@ export default function LandingPage() {
                       {step.num}
                     </div>
                     <div className="pt-1">
-                      <h4 className="font-serif text-lg font-[450] text-text-main mb-1.5">{step.title}</h4>
-                      <p className="text-text-sub text-sm font-[350] leading-relaxed">{step.desc}</p>
+                      <h4 className="font-serif text-lg font-emphasized text-text-main mb-1.5">{step.title}</h4>
+                      <p className="text-text-sub text-sm font-subtle leading-relaxed">{step.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -242,7 +226,7 @@ export default function LandingPage() {
                       { label: 'Privacidad', value: '100% Local' },
                     ].map((stat, i) => (
                       <div key={i} className="flex items-center justify-between py-3 border-b border-glass-border last:border-0">
-                        <span className="text-text-sub text-sm font-[350]">{stat.label}</span>
+                        <span className="text-text-sub text-sm font-subtle">{stat.label}</span>
                         <span className="text-accent font-serif text-lg">{stat.value}</span>
                       </div>
                     ))}
@@ -258,10 +242,10 @@ export default function LandingPage() {
       <section className="relative z-10 py-28">
         <div className="max-w-7xl mx-auto px-8">
           <div className="text-center mb-16">
-            <h2 className="font-serif text-[clamp(2rem,3vw,2.8rem)] font-[400] tracking-[-0.02em] mb-4">
+            <h2 className="font-serif text-[clamp(2rem,3vw,2.8rem)] font-normal tracking-[-0.02em] mb-4">
               Para <span className="text-accent-gradient">Quiénes</span>
             </h2>
-            <p className="text-text-sub text-base font-[350] max-w-[500px] mx-auto">
+            <p className="text-text-sub text-base font-subtle max-w-[500px] mx-auto">
               Democratizamos el acceso a la justicia con tecnología legal de vanguardia.
             </p>
           </div>
@@ -272,9 +256,9 @@ export default function LandingPage() {
                 style={{ animationDelay: `${0.1 * i}s` }}>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="text-accent/80">{item.icon}</div>
-                  <h4 className="font-serif text-lg font-[450] text-text-main">{item.title}</h4>
+                  <h4 className="font-serif text-lg font-emphasized text-text-main">{item.title}</h4>
                 </div>
-                <p className="text-text-sub text-sm font-[350] leading-relaxed">{item.desc}</p>
+                <p className="text-text-sub text-sm font-subtle leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
@@ -285,14 +269,14 @@ export default function LandingPage() {
       <section className="relative z-10 py-32 text-center border-t border-glass-border overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-accent/[0.02] via-transparent to-transparent pointer-events-none" />
         <div className="max-w-4xl mx-auto px-8 relative">
-          <h2 className="font-serif text-[clamp(2.2rem,3.5vw,3.5rem)] font-[400] tracking-[-0.02em] mb-5">
+          <h2 className="font-serif text-[clamp(2.2rem,3.5vw,3.5rem)] font-normal tracking-[-0.02em] mb-5">
             El despacho legal del futuro.
           </h2>
-          <p className="text-text-sub text-lg font-[350] mb-10 max-w-[500px] mx-auto">
+          <p className="text-text-sub text-lg font-subtle mb-10 max-w-[500px] mx-auto">
             Configura tu entorno. Protege tu información. Analiza las leyes. Todo en un solo lugar.
           </p>
           <Link to="/register"
-            className="group inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full glass-panel-strong border border-accent/20 text-accent font-[450] hover:bg-accent/10 hover:border-accent/30 transition-all text-base">
+            className="group inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full glass-panel-strong border border-accent/20 text-accent font-emphasized hover:bg-accent/10 hover:border-accent/30 transition-all text-base">
             Crear Cuenta Gratuita
             <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
           </Link>
@@ -306,7 +290,7 @@ export default function LandingPage() {
             <Scale size={16} className="text-text-muted" />
             <span className="font-serif text-sm text-text-muted tracking-wide">Sententia</span>
           </div>
-          <p className="text-text-muted text-xs font-[350]">
+          <p className="text-text-muted text-xs font-subtle">
             © 2026 Sententia. Inteligencia Artificial aplicada al Derecho.
           </p>
           <div className="flex gap-6">

@@ -28,7 +28,7 @@ export default function ChatInput({
         onSubmit={onSubmit}>
         <textarea
           ref={inputRef}
-          className="flex-1 bg-transparent border-none text-text-main text-sm resize-none max-h-[132px] min-h-[22px] outline-none leading-relaxed font-[350] placeholder:text-text-muted/30 placeholder:font-[300] transition-all scrollbar-thin"
+          className="flex-1 bg-transparent border-none text-text-main text-sm resize-none max-h-[132px] min-h-[22px] outline-none leading-relaxed font-subtle placeholder:text-text-muted/30 placeholder:font-[300] transition-all scrollbar-thin"
           rows={1}
           placeholder={placeholder}
           value={input}
@@ -53,7 +53,7 @@ export default function ChatInput({
         </button>
       </form>
       {footerText && (
-        <p className="mt-2.5 text-[0.5rem] text-text-muted/30 uppercase tracking-[0.15em] font-[300] text-center">{footerText}</p>
+        <p className="mt-2.5 text-2xs text-text-muted/30 uppercase tracking-[0.15em] font-[300] text-center">{footerText}</p>
       )}
     </>
   );

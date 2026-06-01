@@ -343,23 +343,23 @@ export default function Chat() {
               <Menu size={17} />
             </button>
             {!showSidebar && (
-              <span className="hidden md:inline font-serif text-sm font-[400] text-text-sub/60 tracking-wide">Sententia</span>
+              <span className="hidden md:inline font-serif text-sm font-normal text-text-sub/60 tracking-wide">Sententia</span>
             )}
           </div>
           <div className="hidden md:flex items-center gap-2 pointer-events-auto">
             <span className={`w-[5px] h-[5px] rounded-full transition-all duration-500 ${ollamaOnline ? 'bg-accent shadow-[0_0_6px_rgba(201,168,76,0.4)]' : 'bg-danger shadow-[0_0_6px_rgba(232,84,74,0.4)]'}`} />
-            <span className={`text-[9px] font-[350] tracking-[0.1em] transition-all duration-500 ${ollamaOnline ? 'text-accent/50' : 'text-danger/50'}`}>{ollamaOnline ? 'on' : 'off'}</span>
+            <span className={`text-[9px] font-subtle tracking-[0.1em] transition-all duration-500 ${ollamaOnline ? 'text-accent/50' : 'text-danger/50'}`}>{ollamaOnline ? 'on' : 'off'}</span>
           </div>
         </header>
 
         {isSearchMode ? (
           <div className="flex flex-col flex-1 px-6 pt-20 pb-6 overflow-hidden max-w-[640px] mx-auto w-full">
             <div className="mb-5">
-              <h2 className="font-serif text-lg font-[400] text-text-main tracking-[-0.01em] mb-4">Historial</h2>
+              <h2 className="font-serif text-lg font-normal text-text-main tracking-[-0.01em] mb-4">Historial</h2>
               <div className="relative flex items-center bg-white/[0.01] border border-white/[0.04] rounded-xl px-4 py-2.5 transition-all focus-within:border-accent/18">
                 <Search size={14} className="text-text-muted/40 mr-2.5 shrink-0" />
                 <input type="text" placeholder="Buscar conversaciones..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-text-main text-sm outline-none font-[350] placeholder:text-text-muted/40" autoFocus />
+                  className="flex-1 bg-transparent border-none text-text-main text-sm outline-none font-subtle placeholder:text-text-muted/40" autoFocus />
                 <button className="bg-transparent border-none text-text-muted/30 cursor-pointer p-1 rounded-lg hover:bg-white/[0.04] hover:text-text-main transition-all"
                   onClick={() => { setIsSearchMode(false); setSearchQuery(''); }}><X size={13} /></button>
               </div>
@@ -369,44 +369,44 @@ export default function Chat() {
                 <div key={chat.id} className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all hover:bg-white/[0.01]"
                   onClick={() => handleSelectChat(chat.id)}>
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-text-main text-sm font-[350]">{chat.title}</span>
-                    <span className="text-text-muted/40 text-[11px] font-[350]">{new Date(chat.updatedAt).toLocaleDateString()}</span>
+                    <span className="text-text-main text-sm font-subtle">{chat.title}</span>
+                    <span className="text-text-muted/40 text-micro font-subtle">{new Date(chat.updatedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               ))}
               {chats.filter(c => !c.isHidden && c.title.toLowerCase().includes(searchQuery.toLowerCase())).length === 0 && (
-                <div className="text-text-muted/40 text-center py-8 text-sm font-[350]">No se encontraron conversaciones.</div>
+                <div className="text-text-muted/40 text-center py-8 text-sm font-subtle">No se encontraron conversaciones.</div>
               )}
             </div>
           </div>
         ) : isHiddenMode ? (
           <div className="flex flex-col flex-1 px-6 pt-20 pb-6 overflow-hidden max-w-[640px] mx-auto w-full">
             <div className="mb-5">
-              <h2 className="flex items-center gap-2 font-serif text-lg font-[400] text-text-main tracking-[-0.01em] mb-4">
+              <h2 className="flex items-center gap-2 font-serif text-lg font-normal text-text-main tracking-[-0.01em] mb-4">
                 <EyeOff size={15} className="text-text-muted/40" /> Chats Ocultos
               </h2>
               <div className="relative flex items-center bg-white/[0.01] border border-white/[0.04] rounded-xl px-4 py-2.5 transition-all focus-within:border-accent/18">
                 <Search size={14} className="text-text-muted/40 mr-2.5 shrink-0" />
                 <input type="text" placeholder="Buscar en ocultos..." value={hiddenSearchQuery} onChange={(e) => setHiddenSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-text-main text-sm outline-none font-[350] placeholder:text-text-muted/40" autoFocus />
+                  className="flex-1 bg-transparent border-none text-text-main text-sm outline-none font-subtle placeholder:text-text-muted/40" autoFocus />
                 <button className="bg-transparent border-none text-text-muted/30 cursor-pointer p-1 rounded-lg hover:bg-white/[0.04] hover:text-text-main transition-all"
                   onClick={() => { setIsHiddenMode(false); setHiddenSearchQuery(''); }}><X size={13} /></button>
               </div>
             </div>
             <div className="flex flex-col gap-px overflow-y-auto pr-1 scrollbar-thin">
               {chats.filter(c => c.isHidden && c.title.toLowerCase().includes(hiddenSearchQuery.toLowerCase())).length === 0 ? (
-                <div className="text-text-muted/40 text-center py-8 text-sm font-[350]">{hiddenSearchQuery ? 'Sin coincidencias.' : 'No hay chats ocultos.'}</div>
+                <div className="text-text-muted/40 text-center py-8 text-sm font-subtle">{hiddenSearchQuery ? 'Sin coincidencias.' : 'No hay chats ocultos.'}</div>
               ) : (
                 chats.filter(c => c.isHidden && c.title.toLowerCase().includes(hiddenSearchQuery.toLowerCase())).map(chat => (
                   <div key={chat.id} className="flex items-center gap-3 p-3 rounded-lg">
                     <div className="flex flex-col gap-0.5 flex-1">
-                      <span className="text-text-main text-sm font-[350]">{chat.title}</span>
-                      <span className="text-text-muted/40 text-[11px] font-[350]">{new Date(chat.updatedAt).toLocaleDateString()}</span>
+                      <span className="text-text-main text-sm font-subtle">{chat.title}</span>
+                      <span className="text-text-muted/40 text-micro font-subtle">{new Date(chat.updatedAt).toLocaleDateString()}</span>
                     </div>
                     <div className="flex gap-1.5 shrink-0">
-                      <button className="px-3 py-1.5 rounded-lg bg-accent/8 text-accent text-[11px] font-[450] cursor-pointer transition-all hover:bg-accent/12 border-none"
+                      <button className="px-3 py-1.5 rounded-lg bg-accent/8 text-accent text-micro font-emphasized cursor-pointer transition-all hover:bg-accent/12 border-none"
                         title="Restaurar al historial" onClick={() => handleRestoreChat(chat.id)}>Mostrar</button>
-                      <button className="px-2 py-1.5 rounded-lg border border-danger/10 text-danger/40 text-[11px] cursor-pointer transition-all hover:bg-danger/5"
+                      <button className="px-2 py-1.5 rounded-lg border border-danger/10 text-danger/40 text-micro cursor-pointer transition-all hover:bg-danger/5"
                         title="Eliminar permanentemente" onClick={(e) => handleDeleteChat(e, chat.id)}><FileText size={11} /></button>
                     </div>
                   </div>
@@ -420,10 +420,10 @@ export default function Chat() {
               <div className="flex flex-col items-center justify-center h-full w-full pb-[10vh] px-5">
                 <div className="max-w-[720px] w-full flex flex-col items-center">
                   <div className="mb-10 text-center">
-                    <h1 className="font-serif text-5xl md:text-6xl font-[400] tracking-[-0.04em] text-accent-gradient mb-2 leading-[1.1]">
+                    <h1 className="font-serif text-5xl md:text-6xl font-normal tracking-[-0.04em] text-accent-gradient mb-2 leading-[1.1]">
                       Sententia
                     </h1>
-                    <p className="text-text-muted/40 text-[11px] font-[350] uppercase tracking-[0.15em]">Asistente Legal con Inteligencia Artificial</p>
+                    <p className="text-text-muted/40 text-micro font-subtle uppercase tracking-[0.15em]">Asistente Legal con Inteligencia Artificial</p>
                   </div>
 
                   <div className="w-full mb-8">
@@ -438,12 +438,12 @@ export default function Chat() {
                   </div>
 
                   <div className="w-full max-w-[560px]">
-                    <p className="text-[0.5rem] uppercase tracking-[0.15em] text-text-muted/40 font-[400] text-center mb-3">Consultas sugeridas</p>
+                    <p className="text-2xs uppercase tracking-[0.15em] text-text-muted/40 font-normal text-center mb-3">Consultas sugeridas</p>
                     <div className="flex flex-col gap-1.5">
                       {SUGGESTIONS.map((text, i) => (
                         <button key={i}
                           onClick={() => handleSuggestionClick(text)}
-                          className="group text-left px-4 py-[11px] rounded-xl bg-white/[0.01] border border-white/[0.03] text-text-sub/70 text-sm font-[350] cursor-pointer transition-all duration-300 hover:bg-white/[0.02] hover:border-accent/12 hover:text-text-main">
+                          className="group text-left px-4 py-[11px] rounded-xl bg-white/[0.01] border border-white/[0.03] text-text-sub/70 text-sm font-subtle cursor-pointer transition-all duration-300 hover:bg-white/[0.02] hover:border-accent/12 hover:text-text-main">
                           <span className="inline-block transition-all duration-300 group-hover:translate-x-1">{text}</span>
                         </button>
                       ))}
@@ -484,17 +484,17 @@ export default function Chat() {
           style={{ paddingLeft: showSidebar ? `${SIDEBAR_WIDTH}px` : '0' }}
           onClick={() => setRenameModal(null)}>
           <div className="bg-surface border border-white/[0.04] rounded-xl p-6 w-full max-w-[380px] mx-auto shadow-[0_24px_64px_rgba(0,0,0,0.6)]" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-serif text-base font-[400] text-text-main mb-3 tracking-[-0.01em]">Renombrar conversación</h3>
+            <h3 className="font-serif text-base font-normal text-text-main mb-3 tracking-[-0.01em]">Renombrar conversación</h3>
             <input type="text"
-              className="w-full bg-white/[0.01] border border-white/[0.04] rounded-lg px-4 py-2.5 text-text-main text-sm outline-none transition-all focus:border-accent/18 font-[350]"
+              className="w-full bg-white/[0.01] border border-white/[0.04] rounded-lg px-4 py-2.5 text-text-main text-sm outline-none transition-all focus:border-accent/18 font-subtle"
               value={renameBuffer}
               onChange={(e) => setRenameBuffer(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') confirmRename(); if (e.key === 'Escape') setRenameModal(null); }}
               autoFocus />
             <div className="flex gap-2.5 justify-end mt-4">
-              <button className="px-4 py-2 rounded-lg text-text-muted/50 text-[12px] cursor-pointer transition-all hover:bg-white/[0.03] hover:text-text-sub bg-transparent border-none font-[350]"
+              <button className="px-4 py-2 rounded-lg text-text-muted/50 text-[12px] cursor-pointer transition-all hover:bg-white/[0.03] hover:text-text-sub bg-transparent border-none font-subtle"
                 onClick={() => setRenameModal(null)}>Cancelar</button>
-              <button className="px-4 py-2 rounded-lg bg-accent/8 text-accent text-[12px] font-[450] cursor-pointer transition-all hover:bg-accent/12 border-none"
+              <button className="px-4 py-2 rounded-lg bg-accent/8 text-accent text-[12px] font-emphasized cursor-pointer transition-all hover:bg-accent/12 border-none"
                 onClick={confirmRename}>Guardar</button>
             </div>
           </div>

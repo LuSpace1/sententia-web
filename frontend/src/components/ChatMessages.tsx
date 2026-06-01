@@ -72,22 +72,22 @@ export default function ChatMessages({
                     {copiedId === msg.id ? <Check size={11} /> : <Copy size={11} />}
                   </button>
                 )}
-                <div className={`text-sm md:text-[0.9rem] font-[350] leading-[1.75] prose-legal ${msg.role === 'user' ? 'text-text-main' : ''}`}>
+                <div className={`text-sm md:text-[0.9rem] font-subtle leading-[1.75] prose-legal ${msg.role === 'user' ? 'text-text-main' : ''}`}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                 </div>
                 <div className={`flex items-center gap-2 mt-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <span className={`text-[10px] font-[350] ${copiedId === msg.id ? 'text-accent/60' : 'text-text-muted/25'}`}>
+                  <span className={`text-[10px] font-subtle ${copiedId === msg.id ? 'text-accent/60' : 'text-text-muted/25'}`}>
                     {copiedId === msg.id ? 'Copiado ·' : ''}{' '}{formatTime(msg.createdAt)}
                   </span>
                 </div>
                 {msg.modelPrompt && (
                   <div className="flex gap-2.5 mt-3 flex-wrap">
                     <button type="button"
-                      className="rounded-lg px-3.5 py-2 text-[11px] font-[450] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
+                      className="rounded-lg px-3.5 py-2 text-micro font-emphasized cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
                       onClick={() => onDownloadModel(msg.modelPrompt!.model, msg.modelPrompt!.purpose)}
                       disabled={loading || isAnyModelDownloading}>Sí, descargar modelo</button>
                     <button type="button"
-                      className="rounded-lg px-3.5 py-2 text-[11px] font-[400] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-text-muted hover:text-text-sub hover:bg-white/[0.03] border-none bg-transparent"
+                      className="rounded-lg px-3.5 py-2 text-micro font-[400] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-text-muted hover:text-text-sub hover:bg-white/[0.03] border-none bg-transparent"
                       onClick={() => onSkipDownload(msg.modelPrompt!.model)}
                       disabled={loading || isAnyModelDownloading}>No ahora</button>
                   </div>
@@ -95,15 +95,15 @@ export default function ChatMessages({
                 {msg.modelPrompts && msg.modelPrompts.length > 0 && (
                   <div className="flex gap-2.5 mt-3 flex-wrap">
                     <button type="button"
-                      className="rounded-lg px-3.5 py-2 text-[11px] font-[450] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
+                      className="rounded-lg px-3.5 py-2 text-micro font-emphasized cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
                       onClick={() => onDownloadMultiple(msg.modelPrompts!)}
                       disabled={loading || isAnyModelDownloading}>Sí, descargar {msg.modelPrompts.length} modelos</button>
                     <button type="button"
-                      className="rounded-lg px-3.5 py-2 text-[11px] font-[400] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-text-muted hover:text-text-sub hover:bg-white/[0.03] border-none bg-transparent"
+                      className="rounded-lg px-3.5 py-2 text-micro font-[400] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed text-text-muted hover:text-text-sub hover:bg-white/[0.03] border-none bg-transparent"
                       onClick={() => onSkipDownload(msg.modelPrompts!.map(m => m.model).join(' y '))}
                       disabled={loading || isAnyModelDownloading}>No ahora</button>
                     <div className="w-full mt-2 pt-2 border-t border-white/[0.03] flex items-center gap-2 flex-wrap">
-                      <span className="text-[10px] text-text-muted/50 font-[350]">O solo uno:</span>
+                      <span className="text-[10px] text-text-muted/50 font-subtle">O solo uno:</span>
                       {msg.modelPrompts.map(m => (
                         <button key={m.model} type="button"
                           className="bg-transparent border border-white/[0.04] text-text-muted/60 text-[10px] cursor-pointer px-2 py-1 rounded-md transition-all hover:text-text-sub hover:border-white/10 hover:bg-white/[0.02] disabled:opacity-30 disabled:cursor-not-allowed"
@@ -125,7 +125,7 @@ export default function ChatMessages({
                   <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '1.5s' }} />
                   <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.6s', animationDuration: '1.5s' }} />
                 </div>
-                <span className="text-accent/40 text-xs font-[350] tracking-[0.02em]">Analizando jurisprudencia</span>
+                <span className="text-accent/40 text-xs font-subtle tracking-[0.02em]">Analizando jurisprudencia</span>
               </div>
             </div>
           )}

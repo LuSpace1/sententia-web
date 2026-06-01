@@ -49,7 +49,7 @@ export default function ChatSidebar({
       {activeChatId === chat.id && (
         <div className="absolute left-0 top-[5px] bottom-[5px] w-[2px] rounded-full bg-accent" />
       )}
-      <span className="truncate flex-1 text-sm font-[350] tracking-[0.005em] pl-2">{chat.title}</span>
+      <span className="truncate flex-1 text-sm font-subtle tracking-[0.005em] pl-2">{chat.title}</span>
       <div className={`flex gap-0.5 opacity-0 transition-opacity duration-150 ${
         openMenuId === chat.id ? '!opacity-100' : ''
       } group-hover:opacity-100 ${activeChatId === chat.id ? 'opacity-60' : ''} relative`}>
@@ -72,7 +72,7 @@ export default function ChatSidebar({
       <div className="flex items-center justify-between mb-3 px-2 pb-3 border-b border-white/[0.03]">
         <Link to="/" className="flex items-center gap-2.5 no-underline text-text-main" onClick={onCloseMobile}>
           <Scale size={15} className="text-accent" />
-          <span className="font-serif text-sm font-[450] tracking-wide">Sententia</span>
+          <span className="font-serif text-sm font-emphasized tracking-wide">Sententia</span>
         </Link>
         <div className="flex items-center gap-1">
           <button className="bg-transparent border-none text-text-muted cursor-pointer p-1.5 rounded-lg transition-all hover:bg-white/[0.04] hover:text-text-main flex items-center justify-center"
@@ -81,7 +81,7 @@ export default function ChatSidebar({
       </div>
 
       <button onClick={onNewChat}
-        className="flex items-center justify-center gap-2 w-full mb-3 px-3 py-2 rounded-lg bg-accent/8 border border-accent/10 text-accent text-xs font-[450] cursor-pointer transition-all hover:bg-accent/12 hover:border-accent/18">
+        className="flex items-center justify-center gap-2 w-full mb-3 px-3 py-2 rounded-lg bg-accent/8 border border-accent/10 text-accent text-xs font-emphasized cursor-pointer transition-all hover:bg-accent/12 hover:border-accent/18">
         <MessageSquarePlus size={13} />
         <span>Nuevo chat</span>
       </button>
@@ -89,18 +89,18 @@ export default function ChatSidebar({
       <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin gap-2">
         {pinnedChats.length > 0 && (
           <div className="flex flex-col gap-px">
-            <div className="text-[0.5rem] uppercase tracking-[0.15em] text-text-muted/50 font-[400] px-3 mb-1">Fijados</div>
+            <div className="text-2xs uppercase tracking-[0.15em] text-text-muted/50 font-normal px-3 mb-1">Fijados</div>
             {pinnedChats.map(chat => renderChatItem(chat, true))}
           </div>
         )}
         {recentChats.length > 0 && (
           <div className="flex flex-col gap-px">
-            <div className="text-[0.5rem] uppercase tracking-[0.15em] text-text-muted/50 font-[400] px-3 mb-1">Historial</div>
+            <div className="text-2xs uppercase tracking-[0.15em] text-text-muted/50 font-normal px-3 mb-1">Historial</div>
             {recentChats.map(chat => renderChatItem(chat, false))}
           </div>
         )}
         {visibleChats.length === 0 && (
-          <div className="text-text-muted/40 text-xs font-[350] text-center py-8 px-4 leading-relaxed">
+          <div className="text-text-muted/40 text-xs font-subtle text-center py-8 px-4 leading-relaxed">
             No hay conversaciones aún.<br />Inicia una nueva consulta.
           </div>
         )}
@@ -111,8 +111,8 @@ export default function ChatSidebar({
           {user?.username?.charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 overflow-hidden min-w-0">
-          <p className="text-[11px] font-[400] text-text-sub truncate">{user?.username}</p>
-          <p className="text-[9px] text-text-muted/50 font-[350] uppercase tracking-[0.08em]">{user?.isDemo ? 'Demo' : 'Socio'}</p>
+          <p className="text-micro font-normal text-text-sub truncate">{user?.username}</p>
+          <p className="text-[9px] text-text-muted/50 font-subtle uppercase tracking-[0.08em]">{user?.isDemo ? 'Demo' : 'Socio'}</p>
         </div>
         <button className="p-1 rounded-md text-text-muted/60 cursor-pointer transition-all hover:bg-white/[0.04] hover:text-text-sub bg-transparent border-none flex items-center justify-center shrink-0"
           title="Configuración" onClick={onOpenSettings}><Settings size={13} /></button>
@@ -130,20 +130,20 @@ export default function ChatSidebar({
           <div className="fixed z-[8001] bg-[#0a0a0e] border border-white/[0.05] rounded-xl p-1 flex flex-col gap-0.5 min-w-[140px] shadow-[0_24px_64px_rgba(0,0,0,0.8)]"
             style={{ top: menuPos.top, left: menuPos.left }}
             onClick={(e) => e.stopPropagation()}>
-            <button className="bg-transparent border-none text-text-sub px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-[11px] font-[400] transition-all hover:bg-white/[0.03] hover:text-text-main"
+            <button className="bg-transparent border-none text-text-sub px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-micro font-normal transition-all hover:bg-white/[0.03] hover:text-text-main"
               onClick={(e) => { onTogglePin(e, openMenuId); setOpenMenuId(null); setMenuPos(null); }}>
               <Pin size={11} /> {menuPos.isPinned ? 'Desfijar' : 'Fijar'}
             </button>
-            <button className="bg-transparent border-none text-text-sub px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-[11px] font-[400] transition-all hover:bg-white/[0.03] hover:text-text-main"
+            <button className="bg-transparent border-none text-text-sub px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-micro font-normal transition-all hover:bg-white/[0.03] hover:text-text-main"
               onClick={(e) => { const chat = chats.find(c => c.id === openMenuId); if (chat) onRenameChat(e, chat); setOpenMenuId(null); setMenuPos(null); }}>
               <Edit3 size={11} /> Renombrar
             </button>
-            <button className="bg-transparent border-none text-text-sub px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-[11px] font-[400] transition-all hover:bg-white/[0.03] hover:text-text-main"
+            <button className="bg-transparent border-none text-text-sub px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-micro font-normal transition-all hover:bg-white/[0.03] hover:text-text-main"
               onClick={(e) => { onHideChat(e, openMenuId); setOpenMenuId(null); setMenuPos(null); }}>
               <EyeOff size={11} /> Ocultar
             </button>
             <div className="h-px bg-white/[0.03] mx-2 my-0.5" />
-            <button className="bg-transparent border-none text-danger/50 px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-[11px] font-[400] transition-all hover:bg-danger/6 hover:text-danger/70"
+            <button className="bg-transparent border-none text-danger/50 px-3 py-[7px] rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-micro font-normal transition-all hover:bg-danger/6 hover:text-danger/70"
               onClick={(e) => { onDeleteChat(e, openMenuId); setOpenMenuId(null); setMenuPos(null); }}>
               <Trash2 size={11} /> Eliminar
             </button>

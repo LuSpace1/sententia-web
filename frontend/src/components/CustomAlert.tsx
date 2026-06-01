@@ -11,16 +11,16 @@ export default function CustomAlert({ alert }: Props) {
       <div
         className="relative glass-panel-strong rounded-2xl p-8 w-[90%] max-w-[400px] text-center animate-modal"
         onClick={e => e.stopPropagation()}>
-        <h3 className="font-serif text-xl font-[400] text-text-main mb-3 tracking-[-0.01em]">{alert.title}</h3>
-        <p className="text-text-sub text-sm font-[350] mb-7 leading-relaxed">{alert.text}</p>
+        <h3 className="font-serif text-xl font-normal text-text-main mb-3 tracking-[-0.01em]">{alert.title}</h3>
+        <p className="text-text-sub text-sm font-subtle mb-7 leading-relaxed">{alert.text}</p>
         <div className="flex justify-center gap-3">
           <button
-            className="px-5 py-2.5 rounded-xl bg-white/[0.04] border border-glass-border text-text-sub text-sm cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main font-[350]"
+            className="px-5 py-2.5 rounded-xl bg-white/[0.04] border border-glass-border text-text-sub text-sm cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main font-subtle"
             onClick={alert.onCancel}>
             {alert.cancelText || 'Cancelar'}
           </button>
           <button
-            className={`px-5 py-2.5 rounded-xl text-sm font-[450] cursor-pointer transition-all ${
+            className={`px-5 py-2.5 rounded-xl text-sm font-emphasized cursor-pointer transition-all ${
               alert.isDanger
                 ? 'bg-danger/10 border border-danger/20 text-danger hover:bg-danger/15 hover:border-danger/30'
                 : 'bg-accent/10 border border-accent/20 text-accent hover:bg-accent/15 hover:border-accent/30'
