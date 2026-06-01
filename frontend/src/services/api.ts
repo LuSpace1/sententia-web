@@ -49,6 +49,13 @@ export const authService = {
     apiClient.post<AuthResponse & { isDemo: boolean }>('/api/demo-login/'),
 };
 
+export const healthService = {
+  check: (): Promise<boolean> =>
+    apiClient.get('/api/', { timeout: 3000 })
+      .then(() => true)
+      .catch(() => false),
+};
+
 export const chatService = {
   sendMessage: (question: string, chatHistory: ChatHistoryMessage[] = []) =>
     apiClient.post<{ answer: string }>('/api/chat/', {

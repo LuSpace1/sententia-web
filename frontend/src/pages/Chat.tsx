@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { Menu, Search, X, FileText, EyeOff } from 'lucide-react';
-import { chatService } from '../services/api';
+import { chatService, healthService } from '../services/api';
 import { generateId } from '../utils';
 import ChatSidebar from '../components/ChatSidebar';
 import ChatMessages from '../components/ChatMessages';
@@ -50,7 +50,16 @@ export default function Chat() {
   const [renameBuffer, setRenameBuffer] = useState('');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [customAlert, setCustomAlert] = useState<CustomAlertType | null>(null);
+  const [ollamaOnline, setOllamaOnline] = useState(false);
   const downloadAbortRefs = useRef<Record<string, AbortController>>({});
+
+  useEffect(() => {
+    let mounted = true;
+    const check = () => healthService.check().then(ok => { if (mounted) setOllamaOnline(ok); });
+    check();
+    const id = setInterval(check, 15000);
+    return () => { mounted = false; clearInterval(id); };
+  }, []);
 
   const activeChat = chats.find(c => c.id === activeChatId) || chats[0];
   const messages = useMemo(() => activeChat?.messages || [], [activeChat?.messages]);
@@ -337,8 +346,8 @@ export default function Chat() {
               <span className="hidden md:inline font-serif text-sm font-[400] text-text-sub/60 tracking-wide">Sententia</span>
             )}
             <div className="hidden md:flex items-center gap-2 ml-1">
-              <span className="w-[5px] h-[5px] rounded-full bg-white/[0.15] animate-pulse-soft" />
-              <span className="text-[9px] text-text-muted/25 font-[350] uppercase tracking-[0.12em]">En línea</span>
+              <span className={`w-[5px] h-[5px] rounded-full transition-all duration-500 ${ollamaOnline ? 'bg-accent shadow-[0_0_6px_rgba(201,168,76,0.4)]' : 'bg-white/[0.06]'}`} />
+              <span className={`text-[9px] font-[350] uppercase tracking-[0.12em] transition-all duration-500 ${ollamaOnline ? 'text-accent/60' : 'text-text-muted/15'}`}>Ollama</span>
             </div>
           </div>
           <div className="pointer-events-auto" />
