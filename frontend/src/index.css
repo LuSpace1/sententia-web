@@ -82,6 +82,7 @@
 
 @layer utilities {
   .text-accent-gradient {
+    color: #c9a84c;
     background: linear-gradient(135deg, #c9a84c 0%, #e0c878 50%, #c9a84c 100%);
     -webkit-background-clip: text;
     background-clip: text;

@@ -46,7 +46,7 @@ const AUDIENCES = [
 ];
 
 export default function LandingPage() {
-  const { user, handleLogout, handleDemo } = useAuth();
+  const { handleDemo } = useAuth();
   const navigate = useNavigate();
 
   const handleDemoClick = async () => {
@@ -82,29 +82,14 @@ export default function LandingPage() {
             <span className="font-serif text-xl tracking-wide font-[450] text-white/93">Sententia</span>
           </Link>
           <div className="flex items-center gap-4">
-            {user ? (
-              <>
-                <Link to="/chat"
-                  className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-panel-light text-sm font-[450] text-text-sub hover:text-text-main hover:bg-white/[0.06] transition-all">
-                  Ir al Panel
-                </Link>
-                <button onClick={handleLogout}
-                  className="px-5 py-2.5 rounded-full text-sm font-[450] text-text-sub hover:text-text-main transition-all">
-                  Salir
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login"
-                  className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-sm font-[450] text-text-sub hover:text-text-main transition-all">
-                  Iniciar Sesión
-                </Link>
-                <Link to="/register"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-[450] hover:bg-accent/15 hover:border-accent/30 transition-all">
-                  Comenzar Gratis
-                </Link>
-              </>
-            )}
+            <Link to="/login"
+              className="hidden sm:inline-flex items-center px-5 py-2.5 rounded-full text-sm font-[450] text-text-sub hover:text-text-main transition-all">
+              Iniciar Sesión
+            </Link>
+            <Link to="/register"
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-[450] hover:bg-accent/15 hover:border-accent/30 transition-all">
+              Comenzar Gratis
+            </Link>
           </div>
         </div>
       </nav>

@@ -57,7 +57,7 @@ export default function ChatSidebar({
         openMenuId === chat.id ? '!opacity-100' : ''
       } group-hover:opacity-100 ${activeChatId === chat.id ? 'opacity-100' : ''} relative z-1`}>
         <button
-          className="bg-none border-none text-text-muted p-1 rounded-lg cursor-pointer flex items-center justify-center transition-all hover:bg-white/[0.08] hover:text-text-main"
+          className="bg-transparent border-none text-text-muted p-1 rounded-lg cursor-pointer flex items-center justify-center transition-all hover:bg-white/[0.08] hover:text-text-main"
           title="Opciones"
           onClick={(e) => {
             e.stopPropagation();
@@ -78,20 +78,20 @@ export default function ChatSidebar({
           <div className="fixed z-[8001] glass-panel-strong border border-accent/15 rounded-xl p-1.5 flex flex-col gap-0.5 min-w-[160px] shadow-[0_20px_48px_rgba(0,0,0,0.7)] animate-dropdown"
             style={{ top: menuPos.top, left: menuPos.left }}
             onClick={(e) => e.stopPropagation()}>
-            <button className="bg-none border-none text-text-sub px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-accent/10 hover:text-text-main"
+            <button className="bg-transparent border-none text-text-sub px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-accent/10 hover:text-text-main"
               onClick={(e) => { onTogglePin(e, openMenuId); setOpenMenuId(null); setMenuPos(null); }}>
               <Pin size={13} /> {menuPos.isPinned ? 'Desfijar' : 'Fijar'}
             </button>
-            <button className="bg-none border-none text-text-sub px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-accent/10 hover:text-text-main"
+            <button className="bg-transparent border-none text-text-sub px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-accent/10 hover:text-text-main"
               onClick={(e) => { const chat = chats.find(c => c.id === openMenuId); if (chat) onRenameChat(e, chat); setOpenMenuId(null); setMenuPos(null); }}>
               <Edit3 size={13} /> Renombrar
             </button>
-            <button className="bg-none border-none text-text-sub px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-accent/10 hover:text-text-main"
+            <button className="bg-transparent border-none text-text-sub px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-accent/10 hover:text-text-main"
               onClick={(e) => { onHideChat(e, openMenuId); setOpenMenuId(null); setMenuPos(null); }}>
               <EyeOff size={13} /> Ocultar
             </button>
             <div className="h-px bg-glass-border mx-2 my-0.5" />
-            <button className="bg-none border-none text-danger/80 px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-danger/10 hover:text-danger"
+            <button className="bg-transparent border-none text-danger/80 px-3.5 py-2 rounded-lg flex items-center gap-2.5 cursor-pointer text-left text-sm font-[350] transition-all hover:bg-danger/10 hover:text-danger"
               onClick={(e) => { onDeleteChat(e, openMenuId); setOpenMenuId(null); setMenuPos(null); }}>
               <Trash2 size={13} /> Eliminar
             </button>
@@ -134,7 +134,7 @@ export default function ChatSidebar({
           <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin gap-5">
             {pinnedChats.length > 0 && (
               <div className="flex flex-col gap-1.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-muted font-[450] pl-3.5 mb-1 flex items-center gap-2">
+                <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-sub font-[450] pl-3.5 mb-1 flex items-center gap-2">
                   <Pin size={10} /> Fijados
                 </div>
                 {pinnedChats.map(chat => renderChatItem(chat, true))}
@@ -142,7 +142,7 @@ export default function ChatSidebar({
             )}
             {recentChats.length > 0 && (
               <div className="flex flex-col gap-1.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-muted font-[450] pl-3.5 mb-1">Historial</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-sub font-[450] pl-3.5 mb-1">Historial</div>
                 {recentChats.map(chat => renderChatItem(chat, false))}
               </div>
             )}
@@ -157,7 +157,7 @@ export default function ChatSidebar({
                 <p className="text-sm font-[450] text-text-main truncate">{user?.username}</p>
                 <p className="text-[0.65rem] text-accent font-[350]">{user?.isDemo ? 'Sesión Demo' : 'Socio Activo'}</p>
               </div>
-              <button className="p-1.5 rounded-lg text-text-muted cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main bg-none border-none flex items-center justify-center shrink-0"
+              <button className="p-1.5 rounded-lg text-text-muted cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main bg-transparent border-none flex items-center justify-center shrink-0"
                 title="Configuración" onClick={onOpenSettings}><Settings size={16} /></button>
             </div>
             <button className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl border border-danger/15 text-danger/70 text-sm font-[350] cursor-pointer transition-all hover:bg-danger/5 hover:border-danger/25"

@@ -54,12 +54,12 @@ export default function ChatMessages({
               <div className={`relative max-w-[82%] leading-relaxed ${
                 msg.role === 'assistant'
                   ? 'glass-panel rounded-2xl rounded-bl-lg p-5'
-                  : 'bg-accent/8 border border-accent/20 rounded-2xl rounded-br-lg px-5 py-3.5'
+                  : 'bg-accent/8 border border-accent/20 rounded-2xl rounded-br-lg p-5'
               }`}>
                 {msg.role === 'assistant' && (
                   <button
                     className={`absolute top-2.5 right-2.5 z-2 bg-black/40 border border-glass-border rounded-lg p-1.5 text-text-muted cursor-pointer transition-all opacity-0 hover:opacity-100 hover:bg-white/[0.1] hover:text-text-main ${
-                      copiedId === msg.id ? '!opacity-100 !bg-emerald-500/15 !text-emerald-400 !border-emerald-500/20' : ''
+                      copiedId === msg.id ? '!opacity-100 !bg-accent/15 !text-accent !border-accent/20' : ''
                     }`}
                     onClick={() => onCopyMessage(msg.content, msg.id)}
                     title="Copiar texto">

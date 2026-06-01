@@ -28,7 +28,7 @@ export default function ChatInput({
         onSubmit={onSubmit}>
         <textarea
           ref={inputRef}
-          className="flex-1 bg-transparent border-none text-text-main text-base resize-none py-3 max-h-[140px] min-h-[24px] outline-none leading-relaxed font-[350] placeholder:text-text-muted/60 transition-all"
+          className="flex-1 bg-transparent border-none text-text-main text-base resize-none py-3 max-h-[140px] min-h-[24px] outline-none leading-relaxed font-[350] placeholder:text-text-muted transition-all"
           rows={1}
           placeholder={placeholder}
           value={input}

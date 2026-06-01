@@ -255,8 +255,7 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const maxTurns = preferences.maxHistoryTurns ?? 8;
-      const historyMessages = messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-maxTurns).map(m => ({ role: m.role, content: m.content }));
+      const historyMessages = messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-8).map(m => ({ role: m.role, content: m.content }));
       const response = await chatService.sendMessage(userMsgContent, historyMessages);
       const assistantMessage: Message = { id: generateId(), role: 'assistant', content: response.data.answer };
       setChats(prev => prev.map(c => {
@@ -441,7 +440,7 @@ export default function Chat() {
                       {SUGGESTIONS.map((text, i) => (
                         <button key={i}
                           onClick={() => handleSuggestionClick(text)}
-                          className="group text-left px-5 py-3 rounded-xl bg-white/[0.02] border border-glass-border text-text-sub text-sm font-[350] cursor-pointer transition-all hover:bg-white/[0.04] hover:border-accent/20 hover:text-text-main">
+                          className="group text-left px-5 py-3.5 rounded-xl bg-white/[0.03] border border-glass-border text-text-sub text-sm font-[350] cursor-pointer transition-all hover:bg-white/[0.06] hover:border-accent/20 hover:text-text-main">
                           <span className="inline-block transition-transform group-hover:translate-x-0.5">{text}</span>
                         </button>
                       ))}
