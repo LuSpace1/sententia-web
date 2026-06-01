@@ -51,7 +51,7 @@ export const authService = {
 
 export const healthService = {
   check: (): Promise<boolean> =>
-    apiClient.get('/api/', { timeout: 3000 })
+    fetch(`${API_BASE_URL}/api/login/`, { method: 'HEAD', signal: AbortSignal.timeout(3000) })
       .then(() => true)
       .catch(() => false),
 };
