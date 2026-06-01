@@ -22,15 +22,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleDemo = useCallback(async () => {
-    const demoData: User = {
-      username: 'Invitado',
-      token: 'demo-token-' + Date.now(),
-      isDemo: true,
-    };
-    localStorage.setItem('user', JSON.stringify(demoData));
-    setUser(demoData);
-
-    authService.demoLogin().catch(() => {});
+    try {
+      const res = await authService.demoLogin();
+      const { token, isDemo } = res.data;
+      const demoData: User = {
+        username: 'Invitado',
+        token,
+        isDemo: isDemo ?? true,
+      };
+      localStorage.setItem('user', JSON.stringify(demoData));
+      setUser(demoData);
+    } catch {
+      const demoData: User = {
+        username: 'Invitado',
+        token: 'demo-token-' + Date.now(),
+        isDemo: true,
+      };
+      localStorage.setItem('user', JSON.stringify(demoData));
+      setUser(demoData);
+    }
   }, []);
 
   const handleLogout = useCallback(() => {
