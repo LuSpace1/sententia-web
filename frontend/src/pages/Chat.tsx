@@ -345,12 +345,11 @@ export default function Chat() {
             {!showSidebar && (
               <span className="hidden md:inline font-serif text-sm font-[400] text-text-sub/60 tracking-wide">Sententia</span>
             )}
-            <div className="hidden md:flex items-center gap-2 ml-1">
-              <span className={`w-[5px] h-[5px] rounded-full transition-all duration-500 ${ollamaOnline ? 'bg-accent shadow-[0_0_6px_rgba(201,168,76,0.4)]' : 'bg-danger shadow-[0_0_6px_rgba(232,84,74,0.4)]'}`} />
-              <span className={`text-[9px] font-[350] uppercase tracking-[0.12em] transition-all duration-500 ${ollamaOnline ? 'text-accent/60' : 'text-danger/60'}`}>{ollamaOnline ? 'Online' : 'Offline'}</span>
-            </div>
           </div>
-          <div className="pointer-events-auto" />
+          <div className="hidden md:flex items-center gap-2 pointer-events-auto">
+            <span className={`w-[5px] h-[5px] rounded-full transition-all duration-500 ${ollamaOnline ? 'bg-accent shadow-[0_0_6px_rgba(201,168,76,0.4)]' : 'bg-danger shadow-[0_0_6px_rgba(232,84,74,0.4)]'}`} />
+            <span className={`text-[9px] font-[350] tracking-[0.1em] transition-all duration-500 ${ollamaOnline ? 'text-accent/50' : 'text-danger/50'}`}>{ollamaOnline ? 'on' : 'off'}</span>
+          </div>
         </header>
 
         {isSearchMode ? (
