@@ -31,6 +31,8 @@ const SUGGESTIONS = [
   '¿Cuáles son mis derechos como arrendatario?',
 ];
 
+const SIDEBAR_WIDTH = 280;
+
 export default function Chat() {
   const [chats, setChats] = useState<ChatType[]>([createInitialChat()]);
   const [activeChatId, setActiveChatId] = useState(chats[0].id);
@@ -38,6 +40,7 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [downloadStates, setDownloadStates] = useState<Record<string, DownloadState>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [showSidebar, setShowSidebar] = useState(true);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [isHiddenMode, setIsHiddenMode] = useState(false);
@@ -309,6 +312,7 @@ export default function Chat() {
       <ChatSidebar
         chats={chats}
         activeChatId={activeChatId}
+        showSidebar={showSidebar}
         isMobileOpen={isMobileOpen}
         onSelectChat={handleSelectChat}
         onNewChat={handleNewChat}
@@ -316,6 +320,7 @@ export default function Chat() {
         onDeleteChat={handleDeleteChat}
         onHideChat={handleHideChat}
         onRenameChat={startRenameModal}
+        onToggleSidebar={() => setShowSidebar(prev => !prev)}
         onCloseMobile={() => setIsMobileOpen(false)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenSearch={() => setIsSearchMode(true)}
@@ -457,7 +462,8 @@ export default function Chat() {
       </main>
 
       {renameModal && (
-        <div className="fixed inset-0 z-[2000] flex items-center bg-black/60 md:pl-[280px]"
+        <div className="fixed inset-0 z-[2000] flex items-center bg-black/60"
+          style={{ paddingLeft: showSidebar ? `${SIDEBAR_WIDTH}px` : '0' }}
           onClick={() => setRenameModal(null)}>
           <div className="bg-surface border border-white/[0.04] rounded-xl p-6 w-full max-w-[380px] mx-auto shadow-[0_24px_64px_rgba(0,0,0,0.6)]" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-serif text-base font-[400] text-text-main mb-3 tracking-[-0.01em]">Renombrar conversación</h3>
