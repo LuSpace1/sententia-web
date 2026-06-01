@@ -327,11 +327,17 @@ export default function Chat() {
       />
 
       <main className="flex-1 flex flex-col h-screen relative">
-        <header className="h-[56px] flex items-center px-4 absolute top-0 left-0 right-0 z-10">
-          <button className="flex md:hidden bg-transparent border-none text-text-muted/50 p-1.5 rounded-lg cursor-pointer hover:bg-white/[0.04] hover:text-text-main transition-all items-center justify-center"
-            onClick={() => setIsMobileOpen(true)}>
-            <Menu size={17} />
-          </button>
+        <header className="h-[56px] flex items-center justify-between px-4 md:px-6 absolute top-0 left-0 right-0 z-10 pointer-events-none">
+          <div className="flex items-center gap-2 pointer-events-auto">
+            <button className="flex md:hidden bg-transparent border-none text-text-muted/50 p-1.5 rounded-lg cursor-pointer hover:bg-white/[0.04] hover:text-text-main transition-all items-center justify-center"
+              onClick={() => setIsMobileOpen(true)}>
+              <Menu size={17} />
+            </button>
+            {!showSidebar && (
+              <span className="hidden md:inline font-serif text-sm font-[400] text-text-sub/60 tracking-wide">Sententia</span>
+            )}
+          </div>
+          <div className="pointer-events-auto" />
         </header>
 
         {isSearchMode ? (

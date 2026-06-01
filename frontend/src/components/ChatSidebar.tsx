@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   LogOut, MessageSquarePlus, Search, Trash2,
   Settings, Pin, MoreVertical, Edit3, EyeOff,
-  Scale,
+  PanelLeftClose, Scale,
 } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
 import type { Chat } from '../types';
@@ -151,7 +151,7 @@ export default function ChatSidebar({
         </>
       )}
 
-      <div className={`hidden md:flex h-full transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] overflow-hidden shrink-0 ${
+      <div className={`hidden md:flex h-full transition-all duration-400 ease-[cubic-bezier(0.22,0.1,0.25,1)] overflow-hidden shrink-0 ${
         showSidebar ? 'w-[280px]' : 'w-0'
       }`}>
         <aside className="w-[280px] min-w-[280px] h-full flex flex-col border-r border-white/[0.03] bg-surface"
@@ -162,16 +162,18 @@ export default function ChatSidebar({
 
       <button
         onClick={onToggleSidebar}
-        className="hidden md:flex fixed top-1/2 -translate-y-1/2 z-50 w-[5px] h-10 items-center justify-center cursor-pointer text-text-muted/30 hover:text-accent transition-all duration-300 group"
+        className="hidden md:flex fixed top-1/2 -translate-y-1/2 z-50 w-5 h-16 items-center justify-center cursor-pointer bg-white/[0.01] border border-white/[0.03] rounded-r-lg text-text-muted/40 transition-all duration-300 hover:bg-accent/6 hover:text-accent hover:border-accent/15 group"
         style={{ left: showSidebar ? '277px' : '0px' }}
-        title={showSidebar ? 'Ocultar panel' : 'Mostrar panel'}>
-        <div className="w-full h-full rounded-r-sm transition-all duration-300 group-hover:bg-accent/10" />
+        title={showSidebar ? 'Contraer panel' : 'Expandir panel'}>
+        <PanelLeftClose size={13} className={`transition-transform duration-400 ease-[cubic-bezier(0.22,0.1,0.25,1)] ${
+          !showSidebar ? 'rotate-180' : ''
+        }`} />
       </button>
 
       <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity md:hidden ${isMobileOpen ? '!opacity-100 !pointer-events-auto' : ''}`}
         onClick={onCloseMobile} aria-hidden="true" />
 
-      <aside className={`md:hidden absolute left-0 top-0 h-full w-[280px] z-[200] bg-surface border-r border-white/[0.03] transition-transform duration-300 ${
+      <aside className={`md:hidden fixed left-0 top-0 h-full w-[280px] z-[200] bg-surface border-r border-white/[0.03] transition-transform duration-300 ${
         isMobileOpen ? 'translate-x-0' : '-translate-x-full'
       }`}
         aria-label="Panel de Historial">
