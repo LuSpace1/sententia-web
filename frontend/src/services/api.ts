@@ -51,8 +51,8 @@ export const authService = {
 
 export const healthService = {
   check: (): Promise<boolean> =>
-    fetch(`${API_BASE_URL}/api/login/`, { method: 'HEAD', signal: AbortSignal.timeout(3000) })
-      .then(() => true)
+    fetch(`${API_BASE_URL}/api/health/`, { signal: AbortSignal.timeout(3000) })
+      .then(res => res.ok ? res.json().then(data => data.ollama === true) : false)
       .catch(() => false),
 };
 

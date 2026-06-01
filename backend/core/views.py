@@ -20,6 +20,19 @@ from langchain_core.messages import HumanMessage, AIMessage
 _rag_system = LegalRAG()
 
 
+class HealthView(APIView):
+    """Endpoint para verificar el estado del backend y de Ollama."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        ollama_online = _rag_system._is_ollama_running()
+        return Response({
+            "status": "ok" if ollama_online else "degraded",
+            "ollama": ollama_online,
+        })
+
+
 class RegisterView(APIView):
     """Endpoint para crear una cuenta de usuario y obtener su token."""
 
