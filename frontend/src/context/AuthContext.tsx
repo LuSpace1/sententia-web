@@ -22,13 +22,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const handleDemo = useCallback(async () => {
-    const { data } = await authService.demoLogin();
     const demoData: User = {
-      ...data,
-      username: data.username || 'Invitado',
+      username: 'Invitado',
+      token: 'demo-token-' + Date.now(),
+      isDemo: true,
     };
     localStorage.setItem('user', JSON.stringify(demoData));
     setUser(demoData);
+
+    authService.demoLogin().catch(() => {});
   }, []);
 
   const handleLogout = useCallback(() => {
