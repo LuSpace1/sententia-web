@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useMemo } from 'react';
-import { Menu, PanelLeftOpen, Search, X, FileText } from 'lucide-react';
+import { Menu, Search, X, FileText } from 'lucide-react';
 import { chatService } from '../services/api';
 import { generateId } from '../utils';
 import ChatSidebar from '../components/ChatSidebar';
@@ -325,7 +325,7 @@ export default function Chat() {
         onDeleteChat={handleDeleteChat}
         onHideChat={handleHideChat}
         onRenameChat={startRenameModal}
-        onToggleSidebar={() => setShowSidebar(false)}
+        onToggleSidebar={() => setShowSidebar(prev => !prev)}
         onCloseMobile={() => setIsMobileOpen(false)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenSearch={() => setIsSearchMode(true)}
@@ -334,13 +334,7 @@ export default function Chat() {
       <main className="flex-1 flex flex-col h-screen relative z-1">
         <header className="h-[64px] flex items-center justify-between px-6 absolute top-0 left-0 right-0 z-10 pointer-events-none">
           <div className="flex items-center gap-3 pointer-events-auto">
-            {!showSidebar && (
-              <button className="bg-transparent border-none text-text-muted cursor-pointer p-2 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all flex items-center justify-center"
-                onClick={() => setShowSidebar(true)} title="Mostrar panel lateral">
-                <PanelLeftOpen size={20} />
-              </button>
-            )}
-            <button className="hidden max-sm:flex bg-transparent border-none text-text-muted p-2 rounded-lg cursor-pointer hover:bg-white/[0.06] hover:text-text-main transition-all items-center justify-center"
+            <button className="flex md:hidden bg-transparent border-none text-text-muted p-2 rounded-lg cursor-pointer hover:bg-white/[0.06] hover:text-text-main transition-all items-center justify-center"
               onClick={() => setIsMobileOpen(true)}>
               <Menu size={20} />
             </button>

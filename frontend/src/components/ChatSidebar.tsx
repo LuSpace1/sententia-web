@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   LogOut, MessageSquarePlus, Search, Trash2,
-  Settings, Pin, MoreVertical, Edit3, EyeOff, PanelLeftClose,
+  Settings, Pin, MoreVertical, Edit3, EyeOff, PanelLeftClose, PanelLeftOpen,
   Database, Scale,
 } from 'lucide-react';
 import { useAuth } from '../context/useAuth';
@@ -70,6 +70,65 @@ export default function ChatSidebar({
     </div>
   );
 
+  const sidebarContent = (
+    <div className="flex flex-col h-full p-5 overflow-hidden select-none relative z-1">
+      <div className="flex items-center justify-center relative mb-6 pb-4 border-b border-glass-border">
+        <button className="absolute left-0 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-2 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all flex items-center justify-center"
+          onClick={onOpenSearch} title="Buscar conversaciones"><Search size={18} /></button>
+        <Link to="/" className="flex items-center gap-2.5 no-underline text-text-main" onClick={onCloseMobile}>
+          <Scale size={18} className="text-accent" />
+          <h1 className="font-serif text-lg font-[400] tracking-wide m-0">Sententia</h1>
+        </Link>
+      </div>
+
+      <div className="flex flex-col gap-2 mb-5">
+        <button onClick={onNewChat}
+          className="flex items-center justify-start gap-3 w-full px-5 py-3 glass-panel rounded-2xl text-text-main font-[450] text-sm cursor-pointer transition-all hover:bg-glass-hover hover:border-glass-border-light">
+          <MessageSquarePlus size={16} />
+          <span>Nueva conversación</span>
+        </button>
+        <button onClick={onOpenSettings}
+          className="flex items-center justify-start gap-3 w-full px-5 py-3 rounded-2xl text-accent border border-accent/15 font-[450] text-sm cursor-pointer transition-all bg-accent-muted hover:bg-accent/15 hover:border-accent/30">
+          <Database size={16} />
+          <span>Fuentes (RAG)</span>
+        </button>
+      </div>
+
+      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin gap-5">
+        {pinnedChats.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-sub font-[450] pl-3.5 mb-1 flex items-center gap-2">
+              <Pin size={10} /> Fijados
+            </div>
+            {pinnedChats.map(chat => renderChatItem(chat, true))}
+          </div>
+        )}
+        {recentChats.length > 0 && (
+          <div className="flex flex-col gap-1.5">
+            <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-sub font-[450] pl-3.5 mb-1">Historial</div>
+            {recentChats.map(chat => renderChatItem(chat, false))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-auto pt-5 border-t border-glass-border flex flex-col gap-3">
+        <div className="flex items-center gap-3 p-3 glass-panel rounded-2xl transition-all hover:bg-glass-hover">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/20 flex items-center justify-center font-serif text-sm text-accent shrink-0">
+            {user?.username?.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1 overflow-hidden min-w-0">
+            <p className="text-sm font-[450] text-text-main truncate">{user?.username}</p>
+            <p className="text-[0.65rem] text-accent font-[350]">{user?.isDemo ? 'Sesión Demo' : 'Socio Activo'}</p>
+          </div>
+          <button className="p-1.5 rounded-lg text-text-muted cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main bg-transparent border-none flex items-center justify-center shrink-0"
+            title="Configuración" onClick={onOpenSettings}><Settings size={16} /></button>
+        </div>
+        <button className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl border border-danger/15 text-danger/70 text-sm font-[350] cursor-pointer transition-all hover:bg-danger/5 hover:border-danger/25"
+          onClick={handleLogout}><LogOut size={14} /> Finalizar Sesión</button>
+      </div>
+    </div>
+  );
+
   return (
     <>
       {openMenuId && menuPos && (
@@ -99,71 +158,36 @@ export default function ChatSidebar({
         </>
       )}
 
+      {/* Desktop: width-transitioning wrapper with toggle pin */}
+      <div className={`hidden md:flex h-full transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] overflow-hidden shrink-0 relative ${
+        showSidebar ? 'w-[330px]' : 'w-0'
+      }`}>
+        <aside className="w-[330px] min-w-[330px] h-full flex flex-col border-r border-glass-border bg-glass backdrop-blur-2xl before:absolute before:inset-0 before:pointer-events-none before:bg-gradient-to-b before:from-accent/[0.02] before:to-transparent"
+          aria-label="Panel de Historial">
+          {sidebarContent}
+        </aside>
+
+        {/* Toggle pin on the right edge */}
+        <button
+          onClick={onToggleSidebar}
+          className="absolute -right-3 top-1/2 -translate-y-1/2 z-50 w-5 h-14 rounded-r-full glass-panel border border-l-0 border-glass-border flex items-center justify-center cursor-pointer text-text-muted hover:text-accent hover:border-accent/20 transition-all duration-300 group"
+          title={showSidebar ? 'Ocultar panel lateral' : 'Mostrar panel lateral'}>
+          <PanelLeftClose size={12} className={`transition-transform duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] ${
+            !showSidebar ? 'rotate-180' : ''
+          }`} />
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
       <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] opacity-0 pointer-events-none transition-opacity md:hidden ${isMobileOpen ? '!opacity-100 !pointer-events-auto' : ''}`}
         onClick={onCloseMobile} aria-hidden="true" />
 
-      <aside className={`w-[330px] min-w-[330px] h-full flex flex-col border-r border-glass-border transition-all duration-300 relative z-[100] bg-glass backdrop-blur-2xl before:absolute before:inset-0 before:pointer-events-none before:bg-gradient-to-b before:from-accent/[0.02] before:to-transparent ${
-        !showSidebar ? 'max-md:ml-[-330px]' : ''
-      } ${isMobileOpen ? 'max-md:!translate-x-0' : ''} max-md:absolute max-md:left-0 max-md:-translate-x-full max-md:transition-transform max-md:z-[200]`}
+      {/* Mobile sidebar */}
+      <aside className={`md:hidden absolute left-0 top-0 h-full w-[330px] z-[200] bg-glass backdrop-blur-2xl border-r border-glass-border transition-transform duration-300 before:absolute before:inset-0 before:pointer-events-none before:bg-gradient-to-b before:from-accent/[0.02] before:to-transparent ${
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
         aria-label="Panel de Historial">
-        <div className="flex flex-col h-full p-5 overflow-hidden select-none relative z-1">
-          <div className="flex items-center justify-center relative mb-6 pb-4 border-b border-glass-border">
-            <button className="absolute left-0 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-2 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all flex items-center justify-center"
-              onClick={onOpenSearch} title="Buscar conversaciones"><Search size={18} /></button>
-            <Link to="/" className="flex items-center gap-2.5 no-underline text-text-main" onClick={onCloseMobile}>
-              <Scale size={18} className="text-accent" />
-              <h1 className="font-serif text-lg font-[400] tracking-wide m-0">Sententia</h1>
-            </Link>
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-2 rounded-lg hover:bg-white/[0.06] hover:text-text-main transition-all flex items-center justify-center"
-              onClick={onToggleSidebar} title="Ocultar panel lateral"><PanelLeftClose size={20} /></button>
-          </div>
-
-          <div className="flex flex-col gap-2 mb-5">
-            <button onClick={onNewChat}
-              className="flex items-center justify-start gap-3 w-full px-5 py-3 glass-panel rounded-2xl text-text-main font-[450] text-sm cursor-pointer transition-all hover:bg-glass-hover hover:border-glass-border-light">
-              <MessageSquarePlus size={16} />
-              <span>Nueva conversación</span>
-            </button>
-            <button onClick={onOpenSettings}
-              className="flex items-center justify-start gap-3 w-full px-5 py-3 rounded-2xl text-accent border border-accent/15 font-[450] text-sm cursor-pointer transition-all bg-accent-muted hover:bg-accent/15 hover:border-accent/30">
-              <Database size={16} />
-              <span>Fuentes (RAG)</span>
-            </button>
-          </div>
-
-          <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin gap-5">
-            {pinnedChats.length > 0 && (
-              <div className="flex flex-col gap-1.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-sub font-[450] pl-3.5 mb-1 flex items-center gap-2">
-                  <Pin size={10} /> Fijados
-                </div>
-                {pinnedChats.map(chat => renderChatItem(chat, true))}
-              </div>
-            )}
-            {recentChats.length > 0 && (
-              <div className="flex flex-col gap-1.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.15em] text-text-sub font-[450] pl-3.5 mb-1">Historial</div>
-                {recentChats.map(chat => renderChatItem(chat, false))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-auto pt-5 border-t border-glass-border flex flex-col gap-3">
-            <div className="flex items-center gap-3 p-3 glass-panel rounded-2xl transition-all hover:bg-glass-hover">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-accent/20 to-accent/5 border border-accent/20 flex items-center justify-center font-serif text-sm text-accent shrink-0">
-                {user?.username?.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 overflow-hidden min-w-0">
-                <p className="text-sm font-[450] text-text-main truncate">{user?.username}</p>
-                <p className="text-[0.65rem] text-accent font-[350]">{user?.isDemo ? 'Sesión Demo' : 'Socio Activo'}</p>
-              </div>
-              <button className="p-1.5 rounded-lg text-text-muted cursor-pointer transition-all hover:bg-white/[0.08] hover:text-text-main bg-transparent border-none flex items-center justify-center shrink-0"
-                title="Configuración" onClick={onOpenSettings}><Settings size={16} /></button>
-            </div>
-            <button className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl border border-danger/15 text-danger/70 text-sm font-[350] cursor-pointer transition-all hover:bg-danger/5 hover:border-danger/25"
-              onClick={handleLogout}><LogOut size={14} /> Finalizar Sesión</button>
-          </div>
-        </div>
+        {sidebarContent}
       </aside>
     </>
   );
