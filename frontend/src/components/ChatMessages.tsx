@@ -17,6 +17,11 @@ interface Props {
   copiedId: string | null;
 }
 
+function formatTime(ts?: number) {
+  if (!ts) return '';
+  return new Date(ts).toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+}
+
 export default function ChatMessages({
   activeChat, loading, downloadStates, onCopyMessage,
   onDownloadModel, onDownloadMultiple, onSkipDownload, onCancelDownload, copiedId,
@@ -70,8 +75,13 @@ export default function ChatMessages({
                 <div className={`text-sm md:text-[0.9rem] font-[350] leading-[1.75] prose-legal ${msg.role === 'user' ? 'text-text-main' : ''}`}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                 </div>
+                <div className={`flex items-center gap-2 mt-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <span className={`text-[10px] font-[350] ${copiedId === msg.id ? 'text-accent/60' : 'text-text-muted/25'}`}>
+                    {copiedId === msg.id ? 'Copiado ·' : ''}{' '}{formatTime(msg.createdAt)}
+                  </span>
+                </div>
                 {msg.modelPrompt && (
-                  <div className="flex gap-2.5 mt-4 flex-wrap">
+                  <div className="flex gap-2.5 mt-3 flex-wrap">
                     <button type="button"
                       className="rounded-lg px-3.5 py-2 text-[11px] font-[450] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
                       onClick={() => onDownloadModel(msg.modelPrompt!.model, msg.modelPrompt!.purpose)}
@@ -83,7 +93,7 @@ export default function ChatMessages({
                   </div>
                 )}
                 {msg.modelPrompts && msg.modelPrompts.length > 0 && (
-                  <div className="flex gap-2.5 mt-4 flex-wrap">
+                  <div className="flex gap-2.5 mt-3 flex-wrap">
                     <button type="button"
                       className="rounded-lg px-3.5 py-2 text-[11px] font-[450] cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-accent/10 text-accent hover:bg-accent/15 border-none"
                       onClick={() => onDownloadMultiple(msg.modelPrompts!)}
@@ -109,13 +119,13 @@ export default function ChatMessages({
 
           {loading && (
             <div className="flex w-full">
-              <div className="flex items-center gap-3 px-4 py-3 text-accent/40 text-xs font-[350]">
+              <div className="flex items-center gap-3 px-4 py-3">
                 <div className="flex gap-1.5">
                   <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0s', animationDuration: '1.5s' }} />
                   <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.3s', animationDuration: '1.5s' }} />
                   <span className="w-[3px] h-[3px] rounded-full bg-accent/40 animate-pulse" style={{ animationDelay: '0.6s', animationDuration: '1.5s' }} />
                 </div>
-                <span className="tracking-[0.02em]">Analizando jurisprudencia</span>
+                <span className="text-accent/40 text-xs font-[350] tracking-[0.02em]">Analizando jurisprudencia</span>
               </div>
             </div>
           )}

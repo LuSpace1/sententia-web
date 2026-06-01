@@ -328,7 +328,7 @@ export default function Chat() {
 
       <main className="flex-1 flex flex-col h-screen relative">
         <header className="h-[56px] flex items-center justify-between px-4 md:px-6 absolute top-0 left-0 right-0 z-10 pointer-events-none">
-          <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="flex items-center gap-3 pointer-events-auto">
             <button className="flex md:hidden bg-transparent border-none text-text-muted/50 p-1.5 rounded-lg cursor-pointer hover:bg-white/[0.04] hover:text-text-main transition-all items-center justify-center"
               onClick={() => setIsMobileOpen(true)}>
               <Menu size={17} />
@@ -336,6 +336,10 @@ export default function Chat() {
             {!showSidebar && (
               <span className="hidden md:inline font-serif text-sm font-[400] text-text-sub/60 tracking-wide">Sententia</span>
             )}
+            <div className="hidden md:flex items-center gap-2 ml-1">
+              <span className="w-[5px] h-[5px] rounded-full bg-white/[0.15] animate-pulse-soft" />
+              <span className="text-[9px] text-text-muted/25 font-[350] uppercase tracking-[0.12em]">En línea</span>
+            </div>
           </div>
           <div className="pointer-events-auto" />
         </header>
