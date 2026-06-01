@@ -1,42 +1,76 @@
 import axios from 'axios';
+import type { AuthResponse, ChatHistoryMessage, PullProgressEvent } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Inyecta el token de autenticación en cada petición si existe
 apiClient.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  if (user?.token) {
-    config.headers.Authorization = `Token ${user.token}`;
+  const raw = localStorage.getItem('user');
+  if (raw) {
+    try {
+      const user = JSON.parse(raw);
+      if (user?.token) {
+        config.headers.Authorization = `Token ${user.token}`;
+      }
+    } catch {
+      // ignore invalid JSON
+    }
   }
   return config;
 });
 
-const buildAuthHeaders = () => {
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  return user?.token ? { Authorization: `Token ${user.token}` } : {};
+const buildAuthHeaders = (): Record<string, string> => {
+  const raw = localStorage.getItem('user');
+  if (raw) {
+    try {
+      const user = JSON.parse(raw);
+      if (user?.token) {
+        return { Authorization: `Token ${user.token}` };
+      }
+    } catch {
+      // ignore invalid JSON
+    }
+  }
+  return {};
 };
 
 export const authService = {
-  login: (credentials) => apiClient.post('/api/login/', credentials),
-  register: (userData) => apiClient.post('/api/register/', userData),
-  demoLogin: () => apiClient.post('/api/demo-login/'),
+  login: (credentials: { username: string; password: string }) =>
+    apiClient.post<AuthResponse>('/api/login/', credentials),
+
+  register: (userData: { username: string; email: string; password: string }) =>
+    apiClient.post<AuthResponse>('/api/register/', userData),
+
+  demoLogin: () =>
+    apiClient.post<AuthResponse & { isDemo: boolean }>('/api/demo-login/'),
 };
 
 export const chatService = {
-  sendMessage: (question, chatHistory = []) => apiClient.post('/api/chat/', { question, chat_history: chatHistory }),
-  train: (file) => {
+  sendMessage: (question: string, chatHistory: ChatHistoryMessage[] = []) =>
+    apiClient.post<{ answer: string }>('/api/chat/', {
+      question,
+      chat_history: chatHistory,
+    }),
+
+  train: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    return apiClient.post('/api/train/', formData, {
+    return apiClient.post<{ message: string }>('/api/train/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
-  pullModel: async (model, { signal, onProgress } = {}) => {
+
+  pullModel: async (
+    model: string,
+    {
+      signal,
+      onProgress,
+    }: { signal?: AbortSignal; onProgress?: (event: PullProgressEvent) => void } = {}
+  ): Promise<PullProgressEvent | null> => {
     const response = await fetch(`${API_BASE_URL}/api/models/pull/`, {
       method: 'POST',
       headers: {
@@ -59,7 +93,7 @@ export const chatService = {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
-    let lastEvent = null;
+    let lastEvent: PullProgressEvent | null = null;
 
     while (true) {
       const { value, done } = await reader.read();
@@ -73,7 +107,7 @@ export const chatService = {
         const trimmedLine = line.trim();
         if (!trimmedLine) continue;
 
-        const event = JSON.parse(trimmedLine);
+        const event: PullProgressEvent = JSON.parse(trimmedLine);
         lastEvent = event;
 
         if (typeof onProgress === 'function') {
@@ -88,7 +122,7 @@ export const chatService = {
 
     const finalLine = buffer.trim();
     if (finalLine) {
-      const event = JSON.parse(finalLine);
+      const event: PullProgressEvent = JSON.parse(finalLine);
       lastEvent = event;
       if (typeof onProgress === 'function') {
         onProgress(event);
