@@ -20,6 +20,7 @@ const createInitialChat = (): ChatType => ({
   title: 'Nueva Consulta Legal',
   isPinned: false,
   isHidden: false,
+  createdAt: Date.now(),
   updatedAt: Date.now(),
   messages: [],
 });

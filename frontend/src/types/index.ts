@@ -10,12 +10,32 @@ export interface AuthResponse {
   isDemo?: boolean;
 }
 
+export type MessageRole = 'user' | 'assistant';
+
+export type MessageStatus = 'sending' | 'streaming' | 'completed' | 'error';
+
+export type ChatStatus = 'active' | 'archived';
+
+export interface Citation {
+  id: string;
+  sourceId: string;
+  text: string;
+  relevance?: number;
+  title?: string;
+  url?: string;
+  page?: number;
+}
+
 export interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: MessageRole;
   content: string;
+  status?: MessageStatus;
+  createdAt?: number;
+  citations?: Citation[];
   modelPrompt?: ModelPrompt | null;
   modelPrompts?: ModelPrompt[] | null;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ModelPrompt {
@@ -28,7 +48,9 @@ export interface Chat {
   title: string;
   isPinned: boolean;
   isHidden: boolean;
+  createdAt: number;
   updatedAt: number;
+  status?: ChatStatus;
   messages: Message[];
 }
 
@@ -61,7 +83,4 @@ export interface PullProgressEvent {
   total?: number;
 }
 
-export interface ChatHistoryMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
+export type ChatHistoryMessage = Pick<Message, 'role' | 'content'>;
