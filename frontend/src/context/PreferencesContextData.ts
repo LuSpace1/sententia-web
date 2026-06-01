@@ -10,14 +10,9 @@ export interface PreferencesContextType {
 }
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
-  theme: 'dark',
-  language: 'es',
-  defaultJurisdiction: 'Chile',
   defaultPracticeArea: '',
   maxHistoryTurns: 8,
-  streamingEnabled: false,
   citationsEnabled: true,
-  notificationsEnabled: false,
 };
 
 export const PreferencesContext = createContext<PreferencesContextType | null>(null);

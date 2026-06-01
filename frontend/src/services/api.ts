@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AuthResponse, ChatHistoryMessage, PullProgressEvent, TrainingConfig } from '../types';
+import type { AuthResponse, ChatHistoryMessage, PullProgressEvent } from '../types';
 
 const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -56,14 +56,9 @@ export const chatService = {
       chat_history: chatHistory,
     }),
 
-  train: (file: File, config?: TrainingConfig) => {
+  train: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
-    if (config?.chunkSize) formData.append('chunk_size', String(config.chunkSize));
-    if (config?.chunkOverlap) formData.append('chunk_overlap', String(config.chunkOverlap));
-    if (config?.jurisdiction) formData.append('jurisdiction', config.jurisdiction);
-    if (config?.practiceArea) formData.append('practice_area', config.practiceArea);
-    if (config?.model) formData.append('model', config.model);
     return apiClient.post<{ message: string }>('/api/train/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });

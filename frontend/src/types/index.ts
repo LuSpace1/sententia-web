@@ -71,34 +71,15 @@ export interface CustomAlert {
   onCancel?: () => void;
 }
 
-export type TrainingStatusType = 'success' | 'error' | 'info' | 'warning';
-
 export interface TrainingStatus {
-  type: TrainingStatusType;
+  type: 'success' | 'error';
   message: string;
-  progress?: number;
-  file?: string;
-  createdAt?: number;
-  details?: string;
-}
-
-export interface TrainingConfig {
-  chunkSize?: number;
-  chunkOverlap?: number;
-  model?: string;
-  jurisdiction?: string;
-  practiceArea?: string;
 }
 
 export interface UserPreferences {
-  theme?: 'dark' | 'light';
-  language?: string;
-  defaultJurisdiction?: string;
   defaultPracticeArea?: string;
   maxHistoryTurns?: number;
-  streamingEnabled?: boolean;
   citationsEnabled?: boolean;
-  notificationsEnabled?: boolean;
 }
 
 export interface PullProgressEvent {
