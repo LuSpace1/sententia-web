@@ -113,35 +113,9 @@ export default function SettingsModal({
           {settingsTab === 'general' && (
             <div className="flex flex-col gap-5">
               <h3 className="font-serif text-base font-[450] text-text-main">General</h3>
-              <div className="bg-accent-muted border border-accent/15 p-5 rounded-xl space-y-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-text-main text-sm font-[450]">Historial máximo</p>
-                    <p className="text-text-muted text-xs font-[350] mt-0.5">Turnos enviados al modelo por consulta</p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <input type="range" min="2" max="20" value={preferences.maxHistoryTurns ?? 8}
-                      onChange={(e) => updatePreference('maxHistoryTurns', Number(e.target.value))}
-                      className="w-24 h-1.5 rounded-full appearance-none cursor-pointer bg-glass-border accent-accent
-                        [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5
-                        [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-accent [&::-webkit-slider-thumb]:border-none
-                        [&::-webkit-slider-thumb]:shadow-none" />
-                    <span className="text-accent text-sm font-[450] min-w-[2ch] text-right">{preferences.maxHistoryTurns}</span>
-                  </div>
-                </div>
-                <div className="h-px bg-glass-border" />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-text-main text-sm font-[450]">Área legal predilecta</p>
-                    <p className="text-text-muted text-xs font-[350] mt-0.5">Ej: Civil, Penal, Laboral</p>
-                  </div>
-                  <input type="text" value={preferences.defaultPracticeArea || ''}
-                    onChange={(e) => updatePreference('defaultPracticeArea', e.target.value)}
-                    placeholder="Todas"
-                    className="bg-white/[0.04] border border-glass-border rounded-lg px-3 py-1.5 text-text-main text-xs outline-none
-                      w-28 text-right focus:border-accent/30 transition-all font-[350] placeholder:text-text-muted" />
-                </div>
-              </div>
+              <p className="bg-accent-muted border border-accent/15 p-4 rounded-xl text-sm text-text-sub font-[350] leading-relaxed">
+                Ajustes generales de la aplicación. Más opciones próximamente.
+              </p>
             </div>
           )}
 

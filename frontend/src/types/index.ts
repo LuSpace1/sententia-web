@@ -78,7 +78,6 @@ export interface TrainingStatus {
 
 export interface UserPreferences {
   defaultPracticeArea?: string;
-  maxHistoryTurns?: number;
   citationsEnabled?: boolean;
 }
 

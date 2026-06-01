@@ -2,7 +2,6 @@ import { useState, useRef, useCallback, useMemo } from 'react';
 import { Menu, PanelLeftOpen, Search, X, FileText } from 'lucide-react';
 import { chatService } from '../services/api';
 import { generateId } from '../utils';
-import { usePreferences } from '../context/usePreferences';
 import ChatSidebar from '../components/ChatSidebar';
 import ChatMessages from '../components/ChatMessages';
 import ChatInput from '../components/ChatInput';
@@ -33,7 +32,6 @@ const SUGGESTIONS = [
 ];
 
 export default function Chat() {
-  const { preferences } = usePreferences();
   const [chats, setChats] = useState<ChatType[]>([createInitialChat()]);
   const [activeChatId, setActiveChatId] = useState(chats[0].id);
   const [input, setInput] = useState('');

@@ -11,7 +11,6 @@ export interface PreferencesContextType {
 
 export const DEFAULT_PREFERENCES: UserPreferences = {
   defaultPracticeArea: '',
-  maxHistoryTurns: 8,
   citationsEnabled: true,
 };
 
