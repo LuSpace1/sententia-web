@@ -27,7 +27,6 @@ export default function SettingsModal({
   onDeleteChat,
   onRestoreChat,
 }: Props) {
-  const { preferences, updatePreference, resetPreferences } = usePreferences();
   const [settingsTab, setSettingsTab] = useState('general');
   const [trainingFile, setTrainingFile] = useState<File | null>(null);
   const [localTrainingStatus, setLocalTrainingStatus] = useState<TrainingStatus | null>(null);
