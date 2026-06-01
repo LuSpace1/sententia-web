@@ -51,16 +51,21 @@ cd sententia
 ### 2. Backend (Django)
 
 ```bash
-cd backend
+# Instalar dependencias del workspace (desde la raíz del proyecto)
 uv sync
+
+# Copiar variables de entorno
+cd backend
 cp .env.example .env
 # Editar .env y asignar un SECRET_KEY seguro
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
+
+# Ejecutar comandos de Django con uv run
+uv run python manage.py migrate
+uv run python manage.py createsuperuser
+uv run python manage.py runserver
 ```
 
-> `uv sync` utiliza el archivo `.python-version` para crear automáticamente el entorno virtual `.venv` con Python 3.12 e instala todas las dependencias. Si no tienes esa versión instalada, `uv` la descargará automáticamente.
+> `uv sync` desde la raíz del proyecto utiliza `.python-version` para crear el entorno virtual `.venv` con Python 3.12 e instala las dependencias de todos los miembros del workspace. Usa `uv run python manage.py ...` para ejecutar comandos dentro del entorno virtual gestionado por uv.
 
 ### 3. Frontend (React + Vite)
 
@@ -77,7 +82,7 @@ npm run dev
 2. Regístrate o inicia sesión.
 3. El sistema consulta la base de conocimiento legal (documentos indexados en `data/`).
 
-> Para indexar nuevos documentos (PDF o TXT) usa `LegalRAG.ingest_file()` desde la shell de Django (`python manage.py shell`).
+> Para indexar nuevos documentos (PDF o TXT) usa `LegalRAG.ingest_file()` desde la shell de Django (`uv run python manage.py shell`).
 
 
 ## Estetica
