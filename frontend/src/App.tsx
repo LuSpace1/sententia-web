@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { PreferencesProvider } from './context/PreferencesContext'
 import { useAuth } from './context/useAuth'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
@@ -24,11 +25,13 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </AuthProvider>
+    <PreferencesProvider>
+      <AuthProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </AuthProvider>
+    </PreferencesProvider>
   )
 }
 
