@@ -472,7 +472,7 @@ export default function Chat() {
 
       {renameModal && (
         <div className="fixed inset-0 z-[2000] flex items-center bg-black/60 backdrop-blur-md"
-          style={{ paddingLeft: showSidebar ? '330px' : '0' }}
+          style={{ paddingLeft: showSidebar ? '300px' : '0' }}
           onClick={() => setRenameModal(null)}>
           <div className="glass-panel-strong rounded-2xl p-7 w-full max-w-[440px] mx-auto shadow-2xl animate-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="font-serif text-lg font-[450] text-text-main mb-4">Renombrar conversación</h3>
