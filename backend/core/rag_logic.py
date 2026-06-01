@@ -1,5 +1,7 @@
 import os
 import json
+import random
+import re
 import urllib.request
 from pathlib import Path
 
@@ -17,7 +19,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 _CHROMA_DIR = str(Path(__file__).resolve().parent.parent.parent / "data" / "chroma_db")
 _DATA_DIR = Path(__file__).resolve().parent.parent.parent / "data"
 _SUPPORTED_EXTENSIONS = (".pdf", ".txt", ".md")
-
 
 class ModelDependencyError(RuntimeError):
     """Se usa cuando falta un modelo requerido en Ollama."""
@@ -43,9 +44,38 @@ REGLAS CRÍTICAS:
 4. CITAS OBLIGATORIAS: Cuando el contexto contenga un artículo o ley específica, cítala entre corchetes: [Código Penal, Art. 14].
 5. PRIORIZACIÓN: Si encuentras información contradictoria, prioriza las Leyes Especiales sobre los Códigos Generales.
 6. TONO: Profesional, técnico y directo. Sin introducciones innecesarias.
+7. CONTEXTO IRRELEVANTE: Si el contexto proporcionado NO guarda relación con la pregunta del usuario, responde de forma natural indicando que el tema no está en tu base de conocimiento legal, sin forzar respuestas usando fragmentos no relacionados. Ejemplo: si la pregunta es un saludo o tema no legal, responde cordialmente que tu especialidad es el derecho chileno.
 
 Contexto Legal:
 {context}"""
+
+_GREETING_PATTERNS = [
+    re.compile(r"^(hola|buenas|buen[ao]s? (d[ií]as|tardes|noches)|hey|hello|hi|saludos|qu[eé] tal|c[oó]mo est[aá]s|qu[eé] hay|qu[eé] pasa)\b", re.IGNORECASE),
+    re.compile(r"^(gracias|muchas gracias|te agradezco|se agradece|gracias por tu|gracias por la)\b", re.IGNORECASE),
+    re.compile(r"^(chao|adi[oó]s|hasta luego|nos vemos|bye|goodbye|hasta pronto|cuidate|cuídese)\b", re.IGNORECASE),
+    re.compile(r"^(qui[eé]n eres|qu[eé] eres|qu[eé] puedes hacer|c[oó]mo funcionas|para qu[eé] sirves|dime qui[eé]n eres|pres[eé]ntate)\b", re.IGNORECASE),
+    re.compile(r"^(est[aá]s ah[ií]|me escuchas|puedes escucharme|funcionas|hay alguien)\b", re.IGNORECASE),
+    re.compile(r"^(bien y t[uú]|bien gracias|muy bien|todo bien|bien bien)\b", re.IGNORECASE),
+]
+
+_GREETING_RESPONSES = [
+    "¡Hola! Soy Sententia, tu asistente legal especializado en legislación chilena. ¿En qué puedo ayudarte hoy? Puedes consultarme sobre leyes, artículos del Código Civil, Penal, del Trabajo, y más.",
+    "¡Hola! ¿En qué puedo asistirte? Soy Sententia, un asistente de legislación chilena. Puedes hacerme preguntas sobre la Constitución, códigos y leyes de Chile.",
+    "¡Saludos! Soy Sententia, tu asistente legal chileno. Cuéntame, ¿qué consulta jurídica tienes hoy?",
+]
+
+_THANKS_RESPONSES = [
+    "¡De nada! Si tienes más preguntas legales, aquí estoy para ayudarte.",
+    "Con gusto. No dudes en consultarme si tienes más dudas legales.",
+    "Para eso estoy. Si necesitas algo más, solo dímelo.",
+]
+
+_ABOUT_RESPONSE = (
+    "Soy Sententia, un asistente legal basado en inteligencia artificial especializado en legislación chilena. "
+    "Utilizo un sistema de Retrieval Augmented Generation (RAG) para responder tus consultas basándome "
+    "en documentos legales chilenos reales como la Constitución, el Código Civil, el Código Penal, el Código del Trabajo, entre otros. "
+    "Mi funcionamiento es 100%% local y privado. ¿En qué puedo ayudarte?"
+)
 
 
 class LegalRAG:
@@ -260,6 +290,38 @@ class LegalRAG:
         filename = os.path.basename(file_path)
         return f"Éxito: Se indexaron {len(splits)} fragmentos del archivo '{filename}'."
 
+    @staticmethod
+    def _classify_query(question: str) -> str | None:
+        """Clasifica la consulta. Si es saludo/small talk, devuelve respuesta directa. None si va a RAG."""
+        q = question.strip()
+
+        for pattern in _GREETING_PATTERNS:
+            match = pattern.search(q)
+            if not match:
+                continue
+
+            matched = match.group(1).lower() if match.lastindex else match.group(0).lower()
+
+            about_keywords = ["quién eres", "quien eres", "qué eres", "que eres",
+                              "qué puedes hacer", "que puedes hacer", "cómo funcionas",
+                              "como funcionas", "para qué sirves", "para que sirves",
+                              "preséntate", "presentate", "dime quién eres"]
+            if any(kw in matched for kw in about_keywords):
+                return _ABOUT_RESPONSE
+
+            thanks_keywords = ["gracias", "te agradezco", "se agradece"]
+            if any(kw in matched for kw in thanks_keywords):
+                return random.choice(_THANKS_RESPONSES)
+
+            farewell_keywords = ["chao", "adiós", "adios", "hasta luego", "nos vemos",
+                                 "bye", "goodbye", "hasta pronto", "cuidate", "cuídese"]
+            if any(kw in matched for kw in farewell_keywords):
+                return random.choice(_THANKS_RESPONSES)
+
+            return random.choice(_GREETING_RESPONSES)
+
+        return None
+
     def query(self, question: str, chat_history: list | None = None) -> str:
         """
         Realiza una consulta al sistema RAG.
@@ -271,6 +333,12 @@ class LegalRAG:
             Respuesta generada por el LLM basada en los documentos legales.
         """
         chat_history = chat_history or []
+
+        # 0. Detectar saludos/small talk antes de invocar RAG
+        greeting_response = self._classify_query(question)
+        if greeting_response:
+            return greeting_response
+
         # 1. Verificar si Ollama está corriendo
         if not self._is_ollama_running():
             return (
